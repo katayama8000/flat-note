@@ -4,13 +4,14 @@
     "npm:@tauri-apps/api@2": "2.10.1",
     "npm:@tauri-apps/cli@2": "2.10.1",
     "npm:@tauri-apps/plugin-opener@2": "2.5.3",
+    "npm:@types/node@22": "22.19.15",
     "npm:@types/react-dom@^19.1.6": "19.2.3_@types+react@19.2.14",
     "npm:@types/react@^19.1.8": "19.2.14",
-    "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.3.1__picomatch@4.0.3_@babel+core@7.29.0",
+    "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.3.1__picomatch@4.0.3_@babel+core@7.29.0_@types+node@22.19.15",
     "npm:react-dom@^19.1.0": "19.2.4_react@19.2.4",
     "npm:react@^19.1.0": "19.2.4",
     "npm:typescript@~5.9.3": "5.9.3",
-    "npm:vite@^7.0.4": "7.3.1_picomatch@4.0.3"
+    "npm:vite@^7.0.4": "7.3.1_picomatch@4.0.3_@types+node@22.19.15"
   },
   "npm": {
     "@babel/code-frame@7.29.0": {
@@ -548,6 +549,12 @@
     "@types/estree@1.0.8": {
       "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
     },
+    "@types/node@22.19.15": {
+      "integrity": "sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
     "@types/react-dom@19.2.3_@types+react@19.2.14": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
@@ -560,7 +567,7 @@
         "csstype"
       ]
     },
-    "@vitejs/plugin-react@4.7.0_vite@7.3.1__picomatch@4.0.3_@babel+core@7.29.0": {
+    "@vitejs/plugin-react@4.7.0_vite@7.3.1__picomatch@4.0.3_@babel+core@7.29.0_@types+node@22.19.15": {
       "integrity": "sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==",
       "dependencies": [
         "@babel/core",
@@ -768,6 +775,9 @@
       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
       "bin": true
     },
+    "undici-types@6.21.0": {
+      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
+    },
     "update-browserslist-db@1.2.3_browserslist@4.28.1": {
       "integrity": "sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==",
       "dependencies": [
@@ -777,9 +787,10 @@
       ],
       "bin": true
     },
-    "vite@7.3.1_picomatch@4.0.3": {
+    "vite@7.3.1_picomatch@4.0.3_@types+node@22.19.15": {
       "integrity": "sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==",
       "dependencies": [
+        "@types/node",
         "esbuild",
         "fdir",
         "picomatch",
@@ -789,6 +800,9 @@
       ],
       "optionalDependencies": [
         "fsevents"
+      ],
+      "optionalPeers": [
+        "@types/node"
       ],
       "bin": true
     },
@@ -802,6 +816,7 @@
         "npm:@tauri-apps/api@2",
         "npm:@tauri-apps/cli@2",
         "npm:@tauri-apps/plugin-opener@2",
+        "npm:@types/node@22",
         "npm:@types/react-dom@^19.1.6",
         "npm:@types/react@^19.1.8",
         "npm:@vitejs/plugin-react@^4.6.0",

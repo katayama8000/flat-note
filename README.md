@@ -1,7 +1,6 @@
-# Tauri + React + Typescript
+# flat-note
 
-This template should help get you started developing with Tauri, React and
-Typescript in Vite.
+A desktop note-taking app built with Tauri, React, and TypeScript.
 
 ## Recommended IDE Setup
 
@@ -12,25 +11,20 @@ Typescript in Vite.
 ## Requirements
 
 - Rust
+  - clippy (for linting)
 - Deno
-- VS Code (optional, but recommended)
+- Make
 
 ## Commands
+
+```bash
+make dev    # Run for desktop
+make fmt    # Format (Deno + Rust)
+make lint   # Lint (Deno + Rust)
+```
 
 ### Install dependencies
 
 ```bash
 deno install
-```
-
-### Run for desktop
-
-```bash
-deno task tauri dev
-```
-
-### Install dependencies
-
-```bash
-deno install npm:dayjs
 ```
