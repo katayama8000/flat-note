@@ -1,28 +1,13 @@
-use serde::Serialize;
-
-// Page struct matching the Page type defined in TypeScript
-#[derive(Serialize)]
-struct Page {
-    id: String,
-    title: String,
-    description: String,
-}
+use domain::Page;
+use infrastructure::InMemoryPageRepository;
+use usecase::GetPagesUseCase;
 
 // Command callable from TypeScript via invoke("get_pages")
 #[tauri::command]
 fn get_pages() -> Vec<Page> {
-    vec![
-        Page {
-            id: "1".to_string(),
-            title: "Page returned from Rust".to_string(),
-            description: "This page was generated in Rust".to_string(),
-        },
-        Page {
-            id: "2".to_string(),
-            title: "Second page".to_string(),
-            description: "Automatically serialized to JSON via Serialize derive".to_string(),
-        },
-    ]
+    let repository = InMemoryPageRepository;
+    let use_case = GetPagesUseCase::new(repository);
+    use_case.execute()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
