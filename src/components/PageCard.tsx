@@ -1,14 +1,14 @@
-import type { Page } from "../types";
+import type { Page } from "../types.ts";
 
 type Props = {
-    page: Page;
+  page: Page;
 };
 
 export function PageCard({ page }: Props) {
-    return (
-        <div className="page-card">
-            <h2 className="page-title">{page.title}</h2>
-            <p className="page-description">{page.description}</p>
-        </div>
-    );
+  return (
+    <div className="page-card">
+      <h2 className="page-title">{page.title}</h2>
+      <p className="page-description">{page.description}</p>
+    </div>
+  );
 }

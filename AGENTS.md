@@ -1,39 +1,12 @@
 ## Commands
 
-### Install dependencies
+All commands are available via `make`. See [Makefile](Makefile) for details.
 
 ```bash
-deno install npm:dayjs
-```
-
-### Run for desktop
-
-```bash
-deno task tauri dev
-```
-
-### Build Rust (src-tauri)
-
-```bash
-cd src-tauri && cargo build
-```
-
-### Format Rust
-
-```bash
-cd src-tauri && cargo fmt
-```
-
-## lint
-
-```bash
-deno lint
-```
-
-## format
-
-```bash
-deno fmt
+make dev    # Run for desktop
+make fmt    # Format (Deno + Rust)
+make lint   # Lint (Deno + Rust)
+make check  # Type check (Deno + Rust)
 ```
 
 ## Architecture
