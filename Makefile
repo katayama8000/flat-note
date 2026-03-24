@@ -1,4 +1,4 @@
-.PHONY: dev fmt lint check
+.PHONY: dev fmt fmt-check lint check
 
 dev:
 	deno task tauri dev
@@ -6,6 +6,10 @@ dev:
 fmt:
 	deno fmt
 	cd src-tauri && cargo fmt
+
+fmt-check:
+	deno fmt --check
+	cd src-tauri && cargo fmt --check
 
 lint:
 	deno lint
