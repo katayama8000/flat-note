@@ -9,7 +9,7 @@ impl<R: PageRepository> GetPagesUseCase<R> {
         Self { repository }
     }
 
-    pub fn execute(&self) -> Vec<Page> {
-        self.repository.find_all()
+    pub async fn execute(&self) -> Result<Vec<Page>, String> {
+        self.repository.find_all().await
     }
 }

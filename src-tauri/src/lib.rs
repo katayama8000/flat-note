@@ -1,13 +1,15 @@
 use domain::Page;
-use infrastructure::InMemoryPageRepository;
+use infrastructure::LibSqlPageRepository;
 use usecase::GetPagesUseCase;
+
+const DB_URL: &str = "http://127.0.0.1:8080";
 
 // Command callable from TypeScript via invoke("get_pages")
 #[tauri::command]
-fn get_pages() -> Vec<Page> {
-    let repository = InMemoryPageRepository;
+async fn get_pages() -> Result<Vec<Page>, String> {
+    let repository = LibSqlPageRepository::new(DB_URL);
     let use_case = GetPagesUseCase::new(repository);
-    use_case.execute()
+    use_case.execute().await
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
