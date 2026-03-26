@@ -8,5 +8,5 @@ pub struct Page {
 }
 
 pub trait PageRepository {
-    fn find_all(&self) -> Vec<Page>;
+    fn find_all(&self) -> impl std::future::Future<Output = Result<Vec<Page>, String>> + Send;
 }
