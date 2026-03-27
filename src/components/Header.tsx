@@ -51,6 +51,7 @@ export function Header() {
             className="app-header-create-btn"
             aria-label="New page"
             onClick={() => setShowCreate(true)}
+            type="button"
           >
             +
           </button>
@@ -86,6 +87,7 @@ export function Header() {
                   setShowCreate(false);
                   setNewTitle("");
                 }}
+                type="button"
               >
                 Cancel
               </button>
@@ -93,6 +95,7 @@ export function Header() {
                 className="create-page-confirm"
                 onClick={handleCreate}
                 disabled={!newTitle.trim() || creating}
+                type="button"
               >
                 {creating ? "Creating..." : "Create"}
               </button>
