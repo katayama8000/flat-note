@@ -18,4 +18,14 @@ pub trait PageRepository {
         id: &str,
         description: &str,
     ) -> impl std::future::Future<Output = Result<(), String>> + Send;
+    fn update_title(
+        &self,
+        id: &str,
+        title: &str,
+    ) -> impl std::future::Future<Output = Result<(), String>> + Send;
+    fn create(
+        &self,
+        id: &str,
+        title: &str,
+    ) -> impl std::future::Future<Output = Result<Page, String>> + Send;
 }

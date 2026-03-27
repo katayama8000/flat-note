@@ -8,6 +8,8 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import CharacterCount from "@tiptap/extension-character-count";
 import Youtube from "@tiptap/extension-youtube";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { all, createLowlight } from "lowlight";
 import type { Page } from "../types.ts";
 import "../App.css";
 
@@ -24,7 +26,8 @@ function PageDetail() {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ codeBlock: false }),
+      CodeBlockLowlight.configure({ lowlight: createLowlight(all) }),
       TaskList,
       TaskItem.configure({ nested: true }),
       CharacterCount,

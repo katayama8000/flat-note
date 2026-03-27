@@ -1,6 +1,7 @@
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
-use usecase::{GetPageUseCase, GetPagesUseCase, UpdatePageUseCase};
+use usecase::{CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase, UpdateTitleUseCase};
+use uuid::Uuid;
 
 const DB_URL: &str = "http://127.0.0.1:8080";
 
@@ -25,11 +26,26 @@ async fn update_page(id: String, description: String) -> Result<(), String> {
     use_case.execute(&id, &description).await
 }
 
+#[tauri::command]
+async fn update_title(id: String, title: String) -> Result<(), String> {
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = UpdateTitleUseCase::new(repository);
+    use_case.execute(&id, &title).await
+}
+
+#[tauri::command]
+async fn create_page(title: String) -> Result<Page, String> {
+    let id = Uuid::new_v4().to_string();
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = CreatePageUseCase::new(repository);
+    use_case.execute(&id, &title).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_pages, get_page, update_page])
+        .invoke_handler(tauri::generate_handler![get_pages, get_page, update_page, update_title, create_page])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
