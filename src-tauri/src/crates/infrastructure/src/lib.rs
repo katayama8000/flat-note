@@ -5,16 +5,16 @@ pub struct InMemoryPageRepository;
 impl PageRepository for InMemoryPageRepository {
     async fn find_all(&self) -> Result<Vec<Page>, String> {
         Ok(vec![
-            Page {
-                id: "1".to_string(),
-                title: "Page returned from Rust".to_string(),
-                description: "This page was generated in Rust".to_string(),
-            },
-            Page {
-                id: "2".to_string(),
-                title: "Second page".to_string(),
-                description: "Automatically serialized to JSON via Serialize derive".to_string(),
-            },
+            Page::reconstruct(
+                "1",
+                "Page returned from Rust",
+                "This page was generated in Rust",
+            ),
+            Page::reconstruct(
+                "2",
+                "Second page",
+                "Automatically serialized to JSON via Serialize derive",
+            ),
         ])
     }
 
@@ -23,22 +23,13 @@ impl PageRepository for InMemoryPageRepository {
         Ok(pages.into_iter().find(|p| p.id == id))
     }
 
-    async fn update_description(&self, id: &str, description: &str) -> Result<(), String> {
-        let _ = (id, description);
+    async fn save(&self, page: &Page) -> Result<(), String> {
+        let _ = page;
         Ok(())
     }
 
-    async fn update_title(&self, id: &str, title: &str) -> Result<(), String> {
-        let _ = (id, title);
-        Ok(())
-    }
-
-    async fn create(&self, id: &str, title: &str) -> Result<Page, String> {
-        Ok(Page {
-            id: id.to_string(),
-            title: title.to_string(),
-            description: "".to_string(),
-        })
+    async fn create(&self, page: &Page) -> Result<Page, String> {
+        Ok(page.clone())
     }
 }
 
@@ -68,11 +59,10 @@ impl PageRepository for LibSqlPageRepository {
 
         let mut pages = Vec::new();
         while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
-            pages.push(Page {
-                id: row.get::<String>(0).map_err(|e| e.to_string())?,
-                title: row.get::<String>(1).map_err(|e| e.to_string())?,
-                description: row.get::<String>(2).map_err(|e| e.to_string())?,
-            });
+            let id = row.get::<String>(0).map_err(|e| e.to_string())?;
+            let title = row.get::<String>(1).map_err(|e| e.to_string())?;
+            let description = row.get::<String>(2).map_err(|e| e.to_string())?;
+            pages.push(Page::reconstruct(id, title, description));
         }
 
         Ok(pages)
@@ -95,17 +85,18 @@ impl PageRepository for LibSqlPageRepository {
             .map_err(|e| e.to_string())?;
 
         if let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
-            Ok(Some(Page {
-                id: row.get::<String>(0).map_err(|e| e.to_string())?,
-                title: row.get::<String>(1).map_err(|e| e.to_string())?,
-                description: row.get::<String>(2).map_err(|e| e.to_string())?,
-            }))
+            let page = Page::reconstruct(
+                row.get::<String>(0).map_err(|e| e.to_string())?,
+                row.get::<String>(1).map_err(|e| e.to_string())?,
+                row.get::<String>(2).map_err(|e| e.to_string())?,
+            );
+            Ok(Some(page))
         } else {
             Ok(None)
         }
     }
 
-    async fn update_description(&self, id: &str, description: &str) -> Result<(), String> {
+    async fn save(&self, page: &Page) -> Result<(), String> {
         let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
             .build()
             .await
@@ -114,8 +105,12 @@ impl PageRepository for LibSqlPageRepository {
         let conn = db.connect().map_err(|e| e.to_string())?;
 
         conn.execute(
-            "UPDATE pages SET description = ?1 WHERE id = ?2",
-            libsql::params![description, id],
+            "UPDATE pages SET title = ?1, description = ?2 WHERE id = ?3",
+            libsql::params![
+                page.title.as_str(),
+                page.description.as_str(),
+                page.id.as_str()
+            ],
         )
         .await
         .map_err(|e| e.to_string())?;
@@ -123,25 +118,7 @@ impl PageRepository for LibSqlPageRepository {
         Ok(())
     }
 
-    async fn update_title(&self, id: &str, title: &str) -> Result<(), String> {
-        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
-            .build()
-            .await
-            .map_err(|e| e.to_string())?;
-
-        let conn = db.connect().map_err(|e| e.to_string())?;
-
-        conn.execute(
-            "UPDATE pages SET title = ?1 WHERE id = ?2",
-            libsql::params![title, id],
-        )
-        .await
-        .map_err(|e| e.to_string())?;
-
-        Ok(())
-    }
-
-    async fn create(&self, id: &str, title: &str) -> Result<Page, String> {
+    async fn create(&self, page: &Page) -> Result<Page, String> {
         let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
             .build()
             .await
@@ -151,15 +128,15 @@ impl PageRepository for LibSqlPageRepository {
 
         conn.execute(
             "INSERT INTO pages (id, title, description) VALUES (?1, ?2, ?3)",
-            libsql::params![id, title, ""],
+            libsql::params![
+                page.id.as_str(),
+                page.title.as_str(),
+                page.description.as_str()
+            ],
         )
         .await
         .map_err(|e| e.to_string())?;
 
-        Ok(Page {
-            id: id.to_string(),
-            title: title.to_string(),
-            description: "".to_string(),
-        })
+        Ok(page.clone())
     }
 }

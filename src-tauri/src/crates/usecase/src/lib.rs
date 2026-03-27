@@ -38,7 +38,14 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
     }
 
     pub async fn execute(&self, id: &str, title: &str) -> Result<(), String> {
-        self.repository.update_title(id, title).await
+        let page = self
+            .repository
+            .find_by_id(id)
+            .await?
+            .ok_or_else(|| format!("Page not found: {id}"))?;
+
+        let updated_page = page.with_title(title);
+        self.repository.save(&updated_page).await
     }
 }
 
@@ -52,7 +59,8 @@ impl<R: PageRepository> CreatePageUseCase<R> {
     }
 
     pub async fn execute(&self, id: &str, title: &str) -> Result<Page, String> {
-        self.repository.create(id, title).await
+        let page = Page::create(id, title, "");
+        self.repository.create(&page).await
     }
 }
 
@@ -66,6 +74,13 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
     }
 
     pub async fn execute(&self, id: &str, description: &str) -> Result<(), String> {
-        self.repository.update_description(id, description).await
+        let page = self
+            .repository
+            .find_by_id(id)
+            .await?
+            .ok_or_else(|| format!("Page not found: {id}"))?;
+
+        let updated_page = page.with_description(description);
+        self.repository.save(&updated_page).await
     }
 }
