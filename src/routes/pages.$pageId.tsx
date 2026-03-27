@@ -27,6 +27,7 @@ function PageDetail() {
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTitleEnterAt = useRef(0);
+  const hasSaved = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -64,6 +65,7 @@ function PageDetail() {
 
   useEffect(() => {
     if (!editor) return;
+    hasSaved.current = false;
     if (isCreateMode) {
       setPage(null);
       setTitleInput("");
@@ -108,12 +110,30 @@ function PageDetail() {
     if (!page) return;
 
     const trimmedTitle = titleInput.trim();
-    if (trimmedTitle && trimmedTitle !== page.title) {
-      await invoke("update_title", { id: page.id, title: trimmedTitle });
-      setPage({ ...page, title: trimmedTitle });
+    if (hasSaved.current) {
+      if (trimmedTitle && trimmedTitle !== page.title) {
+        await invoke("update_title_direct", {
+          id: page.id,
+          title: trimmedTitle,
+        });
+        setPage({ ...page, title: trimmedTitle });
+      }
+      await invoke("update_page_direct", {
+        id: page.id,
+        description: editor.getHTML(),
+      });
+    } else {
+      if (trimmedTitle && trimmedTitle !== page.title) {
+        await invoke("update_title", { id: page.id, title: trimmedTitle });
+        setPage({ ...page, title: trimmedTitle });
+      }
+      await invoke("update_page", {
+        id: page.id,
+        description: editor.getHTML(),
+      });
+      hasSaved.current = true;
     }
 
-    await invoke("update_page", { id: page.id, description: editor.getHTML() });
     setSavedAt(new Date());
   }, [editor, page, isCreateMode, titleInput, creating, navigate]);
 

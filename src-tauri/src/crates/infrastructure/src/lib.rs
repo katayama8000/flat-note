@@ -31,6 +31,14 @@ impl PageRepository for InMemoryPageRepository {
     async fn create(&self, page: &Page) -> Result<Page, String> {
         Ok(page.clone())
     }
+
+    async fn update_title_direct(&self, _id: &str, _title: &str) -> Result<(), String> {
+        Ok(())
+    }
+
+    async fn update_description_direct(&self, _id: &str, _description: &str) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 pub struct LibSqlPageRepository {
@@ -138,5 +146,41 @@ impl PageRepository for LibSqlPageRepository {
         .map_err(|e| e.to_string())?;
 
         Ok(page.clone())
+    }
+
+    async fn update_title_direct(&self, id: &str, title: &str) -> Result<(), String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "UPDATE pages SET title = ?1 WHERE id = ?2",
+            libsql::params![title, id],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn update_description_direct(&self, id: &str, description: &str) -> Result<(), String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "UPDATE pages SET description = ?1 WHERE id = ?2",
+            libsql::params![description, id],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }
