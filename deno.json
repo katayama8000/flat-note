@@ -3,7 +3,13 @@
         "exclude": [
             "**/*.svg",
             "**/*.html",
-            "**/*.json"
+            "**/*.json",
+            "src/routeTree.gen.ts"
+        ]
+    },
+    "lint": {
+        "exclude": [
+            "src/routeTree.gen.ts"
         ]
     }
 }

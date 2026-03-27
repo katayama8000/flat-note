@@ -17,6 +17,16 @@ impl PageRepository for InMemoryPageRepository {
             },
         ])
     }
+
+    async fn find_by_id(&self, id: &str) -> Result<Option<Page>, String> {
+        let pages = self.find_all().await?;
+        Ok(pages.into_iter().find(|p| p.id == id))
+    }
+
+    async fn update_description(&self, id: &str, description: &str) -> Result<(), String> {
+        let _ = (id, description);
+        Ok(())
+    }
 }
 
 pub struct LibSqlPageRepository {
@@ -53,5 +63,50 @@ impl PageRepository for LibSqlPageRepository {
         }
 
         Ok(pages)
+    }
+
+    async fn find_by_id(&self, id: &str) -> Result<Option<Page>, String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        let mut rows = conn
+            .query(
+                "SELECT id, title, description FROM pages WHERE id = ?1",
+                libsql::params![id],
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        if let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            Ok(Some(Page {
+                id: row.get::<String>(0).map_err(|e| e.to_string())?,
+                title: row.get::<String>(1).map_err(|e| e.to_string())?,
+                description: row.get::<String>(2).map_err(|e| e.to_string())?,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn update_description(&self, id: &str, description: &str) -> Result<(), String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "UPDATE pages SET description = ?1 WHERE id = ?2",
+            libsql::params![description, id],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }
