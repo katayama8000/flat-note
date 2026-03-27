@@ -27,6 +27,19 @@ impl PageRepository for InMemoryPageRepository {
         let _ = (id, description);
         Ok(())
     }
+
+    async fn update_title(&self, id: &str, title: &str) -> Result<(), String> {
+        let _ = (id, title);
+        Ok(())
+    }
+
+    async fn create(&self, id: &str, title: &str) -> Result<Page, String> {
+        Ok(Page {
+            id: id.to_string(),
+            title: title.to_string(),
+            description: "".to_string(),
+        })
+    }
 }
 
 pub struct LibSqlPageRepository {
@@ -108,5 +121,45 @@ impl PageRepository for LibSqlPageRepository {
         .map_err(|e| e.to_string())?;
 
         Ok(())
+    }
+
+    async fn update_title(&self, id: &str, title: &str) -> Result<(), String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "UPDATE pages SET title = ?1 WHERE id = ?2",
+            libsql::params![title, id],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn create(&self, id: &str, title: &str) -> Result<Page, String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "INSERT INTO pages (id, title, description) VALUES (?1, ?2, ?3)",
+            libsql::params![id, title, ""],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(Page {
+            id: id.to_string(),
+            title: title.to_string(),
+            description: "".to_string(),
+        })
     }
 }

@@ -7,6 +7,7 @@
     "npm:@tauri-apps/cli@2": "2.10.1",
     "npm:@tauri-apps/plugin-opener@2": "2.5.3",
     "npm:@tiptap/extension-character-count@^3.20.6": "3.20.6_@tiptap+extensions@3.20.6__@tiptap+core@3.20.6___@tiptap+pm@3.20.6____prosemirror-model@1.25.4____prosemirror-state@1.4.4____prosemirror-view@1.41.7__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7",
+    "npm:@tiptap/extension-code-block-lowlight@^3.20.6": "3.20.6_@tiptap+core@3.20.6__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+extension-code-block@3.20.6__@tiptap+core@3.20.6___@tiptap+pm@3.20.6____prosemirror-model@1.25.4____prosemirror-state@1.4.4____prosemirror-view@1.41.7__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7_highlight.js@11.11.1_lowlight@3.3.0",
     "npm:@tiptap/extension-task-item@^3.20.6": "3.20.6_@tiptap+extension-list@3.20.6__@tiptap+core@3.20.6___@tiptap+pm@3.20.6____prosemirror-model@1.25.4____prosemirror-state@1.4.4____prosemirror-view@1.41.7__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7",
     "npm:@tiptap/extension-task-list@^3.20.6": "3.20.6_@tiptap+extension-list@3.20.6__@tiptap+core@3.20.6___@tiptap+pm@3.20.6____prosemirror-model@1.25.4____prosemirror-state@1.4.4____prosemirror-view@1.41.7__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7",
     "npm:@tiptap/extension-youtube@^3.20.6": "3.20.6_@tiptap+core@3.20.6__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7",
@@ -17,6 +18,7 @@
     "npm:@types/react-dom@^19.1.6": "19.2.3_@types+react@19.2.14",
     "npm:@types/react@^19.1.8": "19.2.14",
     "npm:@vitejs/plugin-react@^5.2.0": "5.2.0_vite@6.4.1__@types+node@25.5.0__picomatch@4.0.4_@babel+core@7.29.0_@types+node@25.5.0",
+    "npm:lowlight@^3.3.0": "3.3.0",
     "npm:react-dom@^19.1.0": "19.2.4_react@19.2.4",
     "npm:react@^19.1.0": "19.2.4",
     "npm:typescript@~6.0.2": "6.0.2",
@@ -819,6 +821,16 @@
         "@tiptap/extensions"
       ]
     },
+    "@tiptap/extension-code-block-lowlight@3.20.6_@tiptap+core@3.20.6__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+extension-code-block@3.20.6__@tiptap+core@3.20.6___@tiptap+pm@3.20.6____prosemirror-model@1.25.4____prosemirror-state@1.4.4____prosemirror-view@1.41.7__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7_highlight.js@11.11.1_lowlight@3.3.0": {
+      "integrity": "sha512-VFwSoNB1ScA7k7v6pbWOu1ULppy1jlE09raB6W7dpkCJSiFpL39WiYj5gV/t23P1qMnBcKx1otPyt6i+YzO7FQ==",
+      "dependencies": [
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/pm",
+        "highlight.js",
+        "lowlight"
+      ]
+    },
     "@tiptap/extension-code-block@3.20.6_@tiptap+core@3.20.6__@tiptap+pm@3.20.6___prosemirror-model@1.25.4___prosemirror-state@1.4.4___prosemirror-view@1.41.7_@tiptap+pm@3.20.6__prosemirror-model@1.25.4__prosemirror-state@1.4.4__prosemirror-view@1.41.7": {
       "integrity": "sha512-YuALsPGPEVuv+pbEpznErmkHSU2rShnB4kQPMJFpxv9hJG0HZuSmS2IpLfS4DWhh04TbmuI1zoNuZJ/6myUIzA==",
       "dependencies": [
@@ -1067,6 +1079,12 @@
     "@types/estree@1.0.8": {
       "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
     },
+    "@types/hast@3.0.4": {
+      "integrity": "sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==",
+      "dependencies": [
+        "@types/unist"
+      ]
+    },
     "@types/linkify-it@5.0.0": {
       "integrity": "sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q=="
     },
@@ -1097,6 +1115,9 @@
       "dependencies": [
         "csstype"
       ]
+    },
+    "@types/unist@3.0.3": {
+      "integrity": "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="
     },
     "@types/use-sync-external-store@0.0.6": {
       "integrity": "sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg=="
@@ -1203,6 +1224,15 @@
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
       "dependencies": [
         "ms"
+      ]
+    },
+    "dequal@2.0.3": {
+      "integrity": "sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA=="
+    },
+    "devlop@1.1.0": {
+      "integrity": "sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==",
+      "dependencies": [
+        "dequal"
       ]
     },
     "diff@8.0.4": {
@@ -1328,6 +1358,9 @@
         "is-glob"
       ]
     },
+    "highlight.js@11.11.1": {
+      "integrity": "sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w=="
+    },
     "is-binary-path@2.1.0": {
       "integrity": "sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==",
       "dependencies": [
@@ -1368,6 +1401,14 @@
     },
     "linkifyjs@4.3.2": {
       "integrity": "sha512-NT1CJtq3hHIreOianA8aSXn6Cw0JzYOuDQbOrSPe7gqFnCpKP++MQe3ODgO3oh2GJFORkAAdqredOa60z63GbA=="
+    },
+    "lowlight@3.3.0": {
+      "integrity": "sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ==",
+      "dependencies": [
+        "@types/hast",
+        "devlop",
+        "highlight.js"
+      ]
     },
     "lru-cache@5.1.1": {
       "integrity": "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==",
@@ -1772,6 +1813,7 @@
         "npm:@tauri-apps/cli@2",
         "npm:@tauri-apps/plugin-opener@2",
         "npm:@tiptap/extension-character-count@^3.20.6",
+        "npm:@tiptap/extension-code-block-lowlight@^3.20.6",
         "npm:@tiptap/extension-task-item@^3.20.6",
         "npm:@tiptap/extension-task-list@^3.20.6",
         "npm:@tiptap/extension-youtube@^3.20.6",
@@ -1782,6 +1824,7 @@
         "npm:@types/react-dom@^19.1.6",
         "npm:@types/react@^19.1.8",
         "npm:@vitejs/plugin-react@^5.2.0",
+        "npm:lowlight@^3.3.0",
         "npm:react-dom@^19.1.0",
         "npm:react@^19.1.0",
         "npm:typescript@~6.0.2",
