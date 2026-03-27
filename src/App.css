@@ -127,14 +127,14 @@
 
 .page-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .page-card {
-  aspect-ratio: 1 / 1;
+  min-height: 160px;
   background: #243b2a;
   border-radius: 8px;
   padding: 14px;
@@ -145,6 +145,24 @@
   flex-direction: column;
   gap: 8px;
   overflow: hidden;
+}
+
+.page-card--youtube {
+  padding: 0;
+  gap: 0;
+  min-height: unset;
+}
+
+.page-youtube-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px 8px 0 0;
+}
+
+.page-card-footer {
+  padding: 10px 12px;
 }
 
 .page-card:hover {
