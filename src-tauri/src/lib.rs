@@ -1,10 +1,9 @@
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
-use usecase::GetPagesUseCase;
+use usecase::{GetPageUseCase, GetPagesUseCase};
 
 const DB_URL: &str = "http://127.0.0.1:8080";
 
-// Command callable from TypeScript via invoke("get_pages")
 #[tauri::command]
 async fn get_pages() -> Result<Vec<Page>, String> {
     let repository = LibSqlPageRepository::new(DB_URL);
@@ -12,11 +11,18 @@ async fn get_pages() -> Result<Vec<Page>, String> {
     use_case.execute().await
 }
 
+#[tauri::command]
+async fn get_page(id: String) -> Result<Option<Page>, String> {
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = GetPageUseCase::new(repository);
+    use_case.execute(&id).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_pages])
+        .invoke_handler(tauri::generate_handler![get_pages, get_page])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

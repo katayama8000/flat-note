@@ -9,4 +9,5 @@ pub struct Page {
 
 pub trait PageRepository {
     fn find_all(&self) -> impl std::future::Future<Output = Result<Vec<Page>, String>> + Send;
+    fn find_by_id(&self, id: &str) -> impl std::future::Future<Output = Result<Option<Page>, String>> + Send;
 }
