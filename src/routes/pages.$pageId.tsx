@@ -19,10 +19,14 @@ export const Route = createFileRoute("/pages/$pageId")({
 
 function PageDetail() {
   const { pageId } = Route.useParams();
+  const isCreateMode = pageId === "new";
   const navigate = useNavigate();
   const [page, setPage] = useState<Page | null>(null);
+  const [titleInput, setTitleInput] = useState("");
+  const [creating, setCreating] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTitleEnterAt = useRef(0);
 
   const editor = useEditor({
     extensions: [
@@ -41,24 +45,77 @@ function PageDetail() {
     },
   });
 
-  useEffect(() => {
-    invoke<Page>("get_page", { id: pageId }).then((p) => {
-      setPage(p);
-      if (editor && p) {
-        // Plain text を段落として扱う
-        const content = p.description.startsWith("<")
-          ? p.description
-          : `<p>${p.description}</p>`;
-        editor.commands.setContent(content);
+  const handleTitleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.nativeEvent.isComposing) return;
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+
+      const now = Date.now();
+      const isSecondEnter = now - lastTitleEnterAt.current <= 700;
+      lastTitleEnterAt.current = now;
+      if (isSecondEnter) {
+        editor?.commands.focus("start");
+        lastTitleEnterAt.current = 0;
       }
+    },
+    [editor],
+  );
+
+  useEffect(() => {
+    if (!editor) return;
+    if (isCreateMode) {
+      setPage(null);
+      setTitleInput("");
+      editor.commands.setContent("");
+      return;
+    }
+
+    invoke<Page | null>("get_page", { id: pageId }).then((p) => {
+      setPage(p);
+      if (!p) return;
+      setTitleInput(p.title);
+      const content = p.description.startsWith("<")
+        ? p.description
+        : `<p>${p.description}</p>`;
+      editor.commands.setContent(content);
     });
-  }, [pageId, editor]);
+  }, [pageId, isCreateMode, editor]);
 
   const handleSave = useCallback(async () => {
-    if (!editor || !page) return;
+    if (!editor) return;
+
+    if (isCreateMode) {
+      const title = titleInput.trim();
+      if (!title || creating) return;
+
+      setCreating(true);
+      try {
+        const created = await invoke<Page>("create_page", { title });
+        await invoke("update_page", {
+          id: created.id,
+          description: editor.getHTML(),
+        });
+        setSavedAt(new Date());
+        setPage(created);
+        navigate({ to: "/pages/$pageId", params: { pageId: created.id } });
+      } finally {
+        setCreating(false);
+      }
+      return;
+    }
+
+    if (!page) return;
+
+    const trimmedTitle = titleInput.trim();
+    if (trimmedTitle && trimmedTitle !== page.title) {
+      await invoke("update_title", { id: page.id, title: trimmedTitle });
+      setPage({ ...page, title: trimmedTitle });
+    }
+
     await invoke("update_page", { id: page.id, description: editor.getHTML() });
     setSavedAt(new Date());
-  }, [editor, page]);
+  }, [editor, page, isCreateMode, titleInput, creating, navigate]);
 
   // 1.5秒後に自動保存
   useEffect(() => {
@@ -95,9 +152,15 @@ function PageDetail() {
       clearTimeout(autoSaveTimer.current);
       autoSaveTimer.current = null;
     }
+
+    if (isCreateMode && !titleInput.trim()) {
+      navigate({ to: "/" });
+      return;
+    }
+
     await handleSave();
     navigate({ to: "/" });
-  }, [handleSave, navigate]);
+  }, [handleSave, navigate, isCreateMode, titleInput]);
 
   // Cmd+S / Ctrl+S で保存
   useEffect(() => {
@@ -125,7 +188,13 @@ function PageDetail() {
       {page
         ? (
           <div className="page-detail-content">
-            <h1 className="page-detail-title">{page.title}</h1>
+            <input
+              type="text"
+              className="page-detail-title-input"
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              onKeyDown={handleTitleKeyDown}
+            />
             <EditorContent editor={editor} />
             <div className="editor-footer">
               <span className="saved-at">
@@ -141,6 +210,39 @@ function PageDetail() {
                   onClick={handleSave}
                 >
                   Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+        : isCreateMode
+        ? (
+          <div className="page-detail-content">
+            <input
+              type="text"
+              className="page-detail-title-input"
+              placeholder="Page title"
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              onKeyDown={handleTitleKeyDown}
+              autoFocus
+            />
+            <EditorContent editor={editor} />
+            <div className="editor-footer">
+              <span className="saved-at">
+                {savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : ""}
+              </span>
+              <div className="editor-footer-right">
+                <span className="character-count">
+                  {editor?.storage.characterCount.characters()} characters
+                </span>
+                <button
+                  type="button"
+                  className="save-button"
+                  onClick={handleSave}
+                  disabled={!titleInput.trim() || creating}
+                >
+                  {creating ? "Creating..." : "Save"}
                 </button>
               </div>
             </div>
