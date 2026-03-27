@@ -1,6 +1,8 @@
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
-use usecase::{CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase, UpdateTitleUseCase};
+use usecase::{
+    CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase, UpdateTitleUseCase,
+};
 use uuid::Uuid;
 
 const DB_URL: &str = "http://127.0.0.1:8080";
@@ -45,7 +47,13 @@ async fn create_page(title: String) -> Result<Page, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_pages, get_page, update_page, update_title, create_page])
+        .invoke_handler(tauri::generate_handler![
+            get_pages,
+            get_page,
+            update_page,
+            update_title,
+            create_page
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
