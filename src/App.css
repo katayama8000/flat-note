@@ -68,21 +68,17 @@
   letter-spacing: 0.01em;
 }
 
-.app-header-right {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .app-header-center {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 0 12px;
 }
 
 .app-header-search {
-  width: 100%;
+  flex: 1;
   max-width: 360px;
   height: 28px;
   background-color: #162a1c;
@@ -120,89 +116,6 @@
   background-color: #2e4d35;
   border-color: transparent;
   color: #d4edda;
-}
-
-/* Create page dialog */
-.create-page-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-}
-
-.create-page-dialog {
-  background: #1e3825;
-  border: 1px solid #3a5c42;
-  border-radius: 10px;
-  padding: 20px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.create-page-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #d4edda;
-}
-
-.create-page-input {
-  background: #162a1c;
-  border: 1px solid #3a5c42;
-  border-radius: 6px;
-  padding: 7px 10px;
-  font-size: 14px;
-  color: #e8f0eb;
-  outline: none;
-  width: 100%;
-}
-
-.create-page-input:focus {
-  border-color: #5a9966;
-}
-
-.create-page-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.create-page-cancel {
-  background: none;
-  border: 1px solid #3a5c42;
-  border-radius: 6px;
-  padding: 5px 14px;
-  font-size: 13px;
-  color: #a8c9ae;
-  cursor: pointer;
-}
-
-.create-page-cancel:hover {
-  background-color: #2e4d35;
-  border-color: #5a9966;
-}
-
-.create-page-confirm {
-  background: #3a7a46;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 14px;
-  font-size: 13px;
-  color: #e8f0eb;
-  cursor: pointer;
-}
-
-.create-page-confirm:hover {
-  background: #4a9a58;
-}
-
-.create-page-confirm:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 
 /* ── Home ── */
@@ -330,6 +243,26 @@ button:active {
   font-size: 24px;
   font-weight: 700;
   color: #d4edda;
+}
+
+.page-detail-title-input {
+  width: 100%;
+  font-size: 24px;
+  font-weight: 700;
+  color: #d4edda;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #3a5c42;
+  padding: 2px 0 8px;
+  outline: none;
+}
+
+.page-detail-title-input:focus {
+  border-bottom-color: #5a9966;
+}
+
+.page-detail-title-input::placeholder {
+  color: #7ea886;
 }
 
 /* TipTap editor */

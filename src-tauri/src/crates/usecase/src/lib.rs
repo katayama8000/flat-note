@@ -47,6 +47,10 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
         let updated_page = page.with_title(title);
         self.repository.save(&updated_page).await
     }
+
+    pub async fn execute_direct(&self, id: &str, title: &str) -> Result<(), String> {
+        self.repository.update_title_direct(id, title).await
+    }
 }
 
 pub struct CreatePageUseCase<R: PageRepository> {
@@ -82,5 +86,11 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
 
         let updated_page = page.with_description(description);
         self.repository.save(&updated_page).await
+    }
+
+    pub async fn execute_direct(&self, id: &str, description: &str) -> Result<(), String> {
+        self.repository
+            .update_description_direct(id, description)
+            .await
     }
 }

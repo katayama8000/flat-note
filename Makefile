@@ -18,3 +18,5 @@ lint:
 check:
 	deno check
 	cd src-tauri && cargo check
+
+all: fmt lint check
