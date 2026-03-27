@@ -12,9 +12,6 @@ dist
 dist-ssr
 *.local
 
-# TanStack Router auto-generated file
-src/routeTree.gen.ts
-
 # Local database files
 local.db
 local.db-shm
