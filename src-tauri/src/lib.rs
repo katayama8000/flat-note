@@ -1,7 +1,8 @@
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
 use usecase::{
-    CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase, UpdateTitleUseCase,
+    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase,
+    UpdateTitleUseCase,
 };
 use uuid::Uuid;
 
@@ -57,6 +58,13 @@ async fn create_page(title: String) -> Result<Page, String> {
     use_case.execute(&id, &title).await
 }
 
+#[tauri::command]
+async fn get_page_count() -> Result<u64, String> {
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = CountPagesUseCase::new(repository);
+    use_case.execute().await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -64,6 +72,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_pages,
             get_page,
+            get_page_count,
             update_page,
             update_page_direct,
             update_title,

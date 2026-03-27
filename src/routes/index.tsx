@@ -11,9 +11,11 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [pages, setPages] = useState<Page[]>([]);
+  const [pageCount, setPageCount] = useState<number>(0);
 
   useEffect(() => {
     invoke<Page[]>("get_pages").then(setPages);
+    invoke<number>("get_page_count").then(setPageCount);
   }, []);
 
   return (
@@ -21,6 +23,7 @@ function Home() {
       <div className="page-grid">
         {pages.map((page) => <PageCard key={page.id} page={page} />)}
       </div>
+      <div className="page-count">{pageCount} pages</div>
     </div>
   );
 }
