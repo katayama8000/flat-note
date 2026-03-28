@@ -1,26 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import "../App.css";
-import { PageCard } from "../components/PageCard.tsx";
-import type { Page } from "../types.ts";
+import HomePage from "../pages/HomePage.tsx";
 
 export const Route = createFileRoute("/")({
-  component: Home,
+  component: HomePage,
 });
-
-function Home() {
-  const [pages, setPages] = useState<Page[]>([]);
-
-  useEffect(() => {
-    invoke<Page[]>("get_pages").then(setPages);
-  }, []);
-
-  return (
-    <div className="home">
-      <div className="page-grid">
-        {pages.map((page) => <PageCard key={page.id} page={page} />)}
-      </div>
-    </div>
-  );
-}

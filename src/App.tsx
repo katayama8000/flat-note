@@ -1,22 +1,20 @@
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
-import { PageCard } from "./components/PageCard.tsx";
-import type { Page } from "./types.ts";
+import {
+  createHashHistory,
+  createRouter,
+  RouterProvider,
+} from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen.ts";
 
-export const App = () => {
-  const [pages, setPages] = useState<Page[]>([]);
+const hashHistory = createHashHistory();
 
-  useEffect(() => {
-    // Call the get_pages command defined in Rust
-    invoke<Page[]>("get_pages").then(setPages);
-  }, []);
+const router = createRouter({ routeTree, history: hashHistory });
 
-  return (
-    <div className="home">
-      <div className="page-grid">
-        {pages.map((page) => <PageCard key={page.id} page={page} />)}
-      </div>
-    </div>
-  );
-};
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}

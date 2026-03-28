@@ -1,11 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { Page } from "../types.ts";
+import type { Page } from "../types/page.ts";
 
 type Props = {
   page: Page;
 };
 
-export function PageCard({ page }: Props) {
+export const PageCard = ({ page }: Props) => {
   const navigate = useNavigate();
 
   return (
@@ -18,4 +18,4 @@ export function PageCard({ page }: Props) {
       <p className="page-description">{page.description}</p>
     </div>
   );
-}
+};

@@ -1,6 +1,6 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Outlet, useNavigate } from "@tanstack/react-router";
 
-export function Header() {
+function Header() {
   const navigate = useNavigate();
 
   return (
@@ -27,5 +27,14 @@ export function Header() {
         />
       </div>
     </header>
+  );
+}
+
+export function AppLayout() {
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
   );
 }
