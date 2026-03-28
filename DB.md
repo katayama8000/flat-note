@@ -10,23 +10,28 @@ curl -sSfL https://get.tur.so/install.sh | bash
 brew install libsql/sqld/sqld
 ```
 
-## Start the server
+## Commands
 
-`turso dev` uses an in-memory DB by default — data is lost on stop. Use
-`--db-file` to persist:
+### start local Turso instance with local.db file
 
 ```bash
 turso dev --db-file local.db
 ```
 
-## Seed data
+### seed local.db with initial data
 
 ```bash
-turso db shell http://127.0.0.1:8080 < seed.sql
+turso db shell http://127.0.0.1:8080 < sql/seed.sql
 ```
 
-## Verify
+### Query pages
 
 ```bash
 turso db shell http://127.0.0.1:8080 "SELECT * FROM pages;"
+```
+
+### Clear all data from pages table
+
+```bash
+turso db shell http://127.0.0.1:8080 < sql/clear.sql
 ```
