@@ -30,10 +30,3 @@ turso db shell http://127.0.0.1:8080 < seed.sql
 ```bash
 turso db shell http://127.0.0.1:8080 "SELECT * FROM pages;"
 ```
-
-## GUI clients
-
-- [TablePlus](https://tableplus.com/)
-- [Outerbase Studio](https://libsqlstudio.com/) — browser-based
-
-Connect to `http://127.0.0.1:8080` (no auth token required).

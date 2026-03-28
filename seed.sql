@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO pages (id, title, description) VALUES

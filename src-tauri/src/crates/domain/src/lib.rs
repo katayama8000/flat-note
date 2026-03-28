@@ -1,10 +1,15 @@
 use serde::Serialize;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Page {
     pub id: String,
     pub title: String,
     pub description: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: String,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: String,
 }
 
 impl Page {
@@ -13,10 +18,13 @@ impl Page {
         title: impl Into<String>,
         description: impl Into<String>,
     ) -> Self {
+        let now = Self::current_unix_timestamp();
         Self {
             id: id.into(),
             title: title.into(),
             description: description.into(),
+            created_at: now.clone(),
+            updated_at: now,
         }
     }
 
@@ -25,6 +33,8 @@ impl Page {
             id: self.id.clone(),
             title: title.into(),
             description: self.description.clone(),
+            created_at: self.created_at.clone(),
+            updated_at: self.updated_at.clone(),
         }
     }
 
@@ -33,6 +43,8 @@ impl Page {
             id: self.id.clone(),
             title: self.title.clone(),
             description: description.into(),
+            created_at: self.created_at.clone(),
+            updated_at: self.updated_at.clone(),
         }
     }
 
@@ -41,6 +53,8 @@ impl Page {
             id: self.id.clone(),
             title: title.into(),
             description: description.into(),
+            created_at: self.created_at.clone(),
+            updated_at: self.updated_at.clone(),
         }
     }
 
@@ -49,8 +63,24 @@ impl Page {
         id: impl Into<String>,
         title: impl Into<String>,
         description: impl Into<String>,
+        created_at: impl Into<String>,
+        updated_at: impl Into<String>,
     ) -> Self {
-        Self::create(id, title, description)
+        Self {
+            id: id.into(),
+            title: title.into(),
+            description: description.into(),
+            created_at: created_at.into(),
+            updated_at: updated_at.into(),
+        }
+    }
+
+    fn current_unix_timestamp() -> String {
+        let seconds = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_secs())
+            .unwrap_or(0);
+        seconds.to_string()
     }
 }
 
