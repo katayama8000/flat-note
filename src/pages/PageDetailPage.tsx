@@ -6,7 +6,7 @@ type Props = {
   pageId: string;
 };
 
-const PageDetailPage = ({ pageId }: Props) => {
+export const PageDetailPage = ({ pageId }: Props) => {
   const {
     page,
     editor,
@@ -36,5 +36,3 @@ const PageDetailPage = ({ pageId }: Props) => {
     />
   );
 };
-
-export default PageDetailPage;

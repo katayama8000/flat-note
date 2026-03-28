@@ -4,7 +4,7 @@ import { getPageCount, getPages } from "../features/pages/api/pageApi.ts";
 import { PageCard } from "../features/pages/components/PageCard.tsx";
 import type { Page } from "../features/pages/types/page.ts";
 
-const HomePage = () => {
+export const HomePage = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
 
@@ -22,5 +22,3 @@ const HomePage = () => {
     </div>
   );
 };
-
-export default HomePage;
