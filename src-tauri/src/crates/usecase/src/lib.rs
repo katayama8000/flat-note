@@ -1,3 +1,4 @@
+use domain::aggregate::value_object::{PageDescription, PageId, PageTitle};
 use domain::{Page, PageRepository};
 
 pub struct GetPagesUseCase<R: PageRepository> {
@@ -24,7 +25,7 @@ impl<R: PageRepository> GetPageUseCase<R> {
     }
 
     pub async fn execute(&self, id: &str) -> Result<Option<Page>, String> {
-        self.repository.find_by_id(id).await
+        self.repository.find_by_id(&PageId::new(id)).await
     }
 }
 
@@ -40,7 +41,7 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
     pub async fn execute(&self, id: &str, title: &str) -> Result<(), String> {
         let page = self
             .repository
-            .find_by_id(id)
+            .find_by_id(&PageId::new(id))
             .await?
             .ok_or_else(|| format!("Page not found: {id}"))?;
 
@@ -49,7 +50,9 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
     }
 
     pub async fn execute_direct(&self, id: &str, title: &str) -> Result<(), String> {
-        self.repository.update_title_direct(id, title).await
+        self.repository
+            .update_title_direct(&PageId::new(id), &PageTitle::new(title))
+            .await
     }
 }
 
@@ -80,7 +83,7 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
     pub async fn execute(&self, id: &str, description: &str) -> Result<(), String> {
         let page = self
             .repository
-            .find_by_id(id)
+            .find_by_id(&PageId::new(id))
             .await?
             .ok_or_else(|| format!("Page not found: {id}"))?;
 
@@ -90,7 +93,7 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
 
     pub async fn execute_direct(&self, id: &str, description: &str) -> Result<(), String> {
         self.repository
-            .update_description_direct(id, description)
+            .update_description_direct(&PageId::new(id), &PageDescription::new(description))
             .await
     }
 }
