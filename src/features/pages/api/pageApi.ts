@@ -3,6 +3,8 @@ import type { Page } from "../types/page.ts";
 
 export const getPages = () => invoke<Page[]>("get_pages");
 
+export const getPageCount = () => invoke<number>("get_page_count");
+
 export const getPage = (id: string) => invoke<Page | null>("get_page", { id });
 
 export const createPage = (title: string) =>

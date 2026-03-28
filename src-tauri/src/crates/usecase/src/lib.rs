@@ -94,3 +94,17 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
             .await
     }
 }
+
+pub struct CountPagesUseCase<R: PageRepository> {
+    repository: R,
+}
+
+impl<R: PageRepository> CountPagesUseCase<R> {
+    pub fn new(repository: R) -> Self {
+        Self { repository }
+    }
+
+    pub async fn execute(&self) -> Result<u64, String> {
+        self.repository.count().await
+    }
+}
