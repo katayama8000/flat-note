@@ -73,4 +73,5 @@ pub trait PageRepository {
         id: &str,
         description: &str,
     ) -> impl std::future::Future<Output = Result<(), String>> + Send;
+    fn count(&self) -> impl std::future::Future<Output = Result<u64, String>> + Send;
 }

@@ -39,6 +39,11 @@ impl PageRepository for InMemoryPageRepository {
     async fn update_description_direct(&self, _id: &str, _description: &str) -> Result<(), String> {
         Ok(())
     }
+
+    async fn count(&self) -> Result<u64, String> {
+        let pages = self.find_all().await?;
+        Ok(pages.len() as u64)
+    }
 }
 
 pub struct LibSqlPageRepository {
@@ -182,5 +187,26 @@ impl PageRepository for LibSqlPageRepository {
         .map_err(|e| e.to_string())?;
 
         Ok(())
+    }
+
+    async fn count(&self) -> Result<u64, String> {
+        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            .build()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let conn = db.connect().map_err(|e| e.to_string())?;
+
+        let mut rows = conn
+            .query("SELECT COUNT(*) FROM pages", ())
+            .await
+            .map_err(|e| e.to_string())?;
+
+        if let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            let count = row.get::<u64>(0).map_err(|e| e.to_string())?;
+            Ok(count)
+        } else {
+            Ok(0)
+        }
     }
 }
