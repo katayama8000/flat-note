@@ -1,8 +1,8 @@
 [package]
 name = "flat-note"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A simple note-taking app built with Tauri and Rust."
+authors = ["katayama8000 <tattu.0310@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
