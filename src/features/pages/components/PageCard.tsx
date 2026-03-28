@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { Page } from "../types.ts";
+import type { Page } from "../types/page.ts";
 
 type Props = {
   page: Page;
@@ -19,7 +19,7 @@ const extractYoutubeId = (html: string): string | null => {
   return match ? match[1] : null;
 };
 
-export function PageCard({ page }: Props) {
+export const PageCard = ({ page }: Props) => {
   const navigate = useNavigate();
   const youtubeId = extractYoutubeId(page.description);
 
@@ -50,4 +50,4 @@ export function PageCard({ page }: Props) {
         )}
     </div>
   );
-}
+};

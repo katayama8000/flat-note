@@ -13,12 +13,13 @@ A desktop note-taking app built with Tauri, React, and TypeScript.
 - Rust
   - clippy (for linting)
 - Deno
-- Make
+- Turso CLI (if using Turso for local development)
+  - sqld (if using `--db-file` with Turso)
 
 ## Commands
 
 ```bash
-make dev    # Run for desktop
+make dev    # Run for desktop (with Turso local DB)
 make fmt    # Format (Deno + Rust)
 make lint   # Lint (Deno + Rust)
 ```
@@ -27,4 +28,5 @@ make lint   # Lint (Deno + Rust)
 
 ```bash
 deno install
+cargo add
 ```

@@ -1,7 +1,7 @@
 .PHONY: dev fmt fmt-check lint check
 
 dev:
-	deno task tauri dev
+	turso dev --db-file local.db & deno task tauri dev
 
 fmt:
 	deno fmt
