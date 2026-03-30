@@ -1,8 +1,8 @@
 use crate::aggregate::Page;
-use crate::aggregate::value_object::{PageDescription, PageId, PageTitle};
+use crate::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
 
 pub trait PageRepository {
-    fn find_all(&self) -> impl std::future::Future<Output = Result<Vec<Page>, String>> + Send;
+    fn find_all(&self, sort_by: &SortBy) -> impl std::future::Future<Output = Result<Vec<Page>, String>> + Send;
     fn find_by_id(
         &self,
         id: &PageId,

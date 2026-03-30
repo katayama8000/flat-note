@@ -1,7 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Page } from "../types/page.ts";
 
-export const getPages = () => invoke<Page[]>("get_pages");
+export type SortBy = "createdAt" | "updatedAt";
+
+export const getPages = (sortBy: SortBy) =>
+  invoke<Page[]>("get_pages", { sortBy });
 
 export const getPageCount = () => invoke<number>("get_page_count");
 
