@@ -30,8 +30,11 @@ turso db shell http://127.0.0.1:8080 < sql/seed.sql
 turso db shell http://127.0.0.1:8080 "SELECT * FROM pages;"
 ```
 
+````bash
+turso db shell http://127.0.0.1:8080 "SELECT name FROM sqlite_master WHERE type='table';"
+
 ### Clear all data from pages table
 
 ```bash
 turso db shell http://127.0.0.1:8080 < sql/clear.sql
-```
+````

@@ -1,6 +1,8 @@
 import { EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { KeyboardEvent } from "react";
+import type { Page } from "../types/page.ts";
+import { PageCard } from "./PageCard.tsx";
 
 type Props = {
   hasPage: boolean;
@@ -9,6 +11,7 @@ type Props = {
   creating: boolean;
   savedAt: Date | null;
   characterCount: number;
+  relatedPages: Page[];
   onTitleChange: (value: string) => void;
   onTitleKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
   onBack: () => void;
@@ -23,6 +26,7 @@ export const PageDetailView = ({
   creating,
   savedAt,
   characterCount,
+  relatedPages,
   onTitleChange,
   onTitleKeyDown,
   onBack,
@@ -77,6 +81,17 @@ export const PageDetailView = ({
           </div>
         </div>
       </div>
+
+      {relatedPages.length > 0 && (
+        <div className="related-pages">
+          <h2>Related Pages</h2>
+          <div className="page-grid">
+            {relatedPages.map((page) => (
+              <PageCard key={page.id} page={page} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

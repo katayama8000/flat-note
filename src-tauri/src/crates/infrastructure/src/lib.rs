@@ -1,5 +1,7 @@
-use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
-use domain::{Page, PageRepository};
+use domain::aggregate::value_object::{
+    PageDescription, PageId, PageTitle, SortBy, TokenId, TokenName,
+};
+use domain::{Page, PageRepository, Token};
 
 pub struct InMemoryPageRepository;
 
@@ -61,6 +63,22 @@ impl PageRepository for InMemoryPageRepository {
     async fn count(&self) -> Result<u64, String> {
         let pages = self.find_all(&SortBy::CreatedAt).await?;
         Ok(pages.len() as u64)
+    }
+
+    async fn find_or_create_token(&self, name: &TokenName) -> Result<Token, String> {
+        Ok(Token::new(1, name.value()))
+    }
+
+    async fn find_tokens_by_page_id(&self, _page_id: &PageId) -> Result<Vec<Token>, String> {
+        Ok(vec![])
+    }
+
+    async fn sync_page_tokens(&self, _page_id: &PageId, _token_ids: &Vec<TokenId>) -> Result<(), String> {
+        Ok(())
+    }
+
+    async fn find_related_pages(&self, _page_id: &PageId) -> Result<Vec<Page>, String> {
+        Ok(vec![])
     }
 }
 
@@ -222,5 +240,65 @@ impl PageRepository for LibSqlPageRepository {
         } else {
             Ok(0)
         }
+    }
+
+    async fn find_or_create_token(&self, name: &TokenName) -> Result<Token, String> {
+        let conn = self.connect().await?;
+        conn.execute("INSERT OR IGNORE INTO tokens (name) VALUES (?1)", libsql::params![name.value()]).await.map_err(|e| e.to_string())?;
+        let mut rows = conn.query("SELECT id, name FROM tokens WHERE name = ?1", libsql::params![name.value()]).await.map_err(|e| e.to_string())?;
+        if let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            let id = row.get::<i64>(0).map_err(|e| e.to_string())?;
+            let name = row.get::<String>(1).map_err(|e| e.to_string())?;
+            Ok(Token::new(id, name))
+        } else {
+            Err("Failed to find or create token".to_string())
+        }
+    }
+
+    async fn find_tokens_by_page_id(&self, page_id: &PageId) -> Result<Vec<Token>, String> {
+        let conn = self.connect().await?;
+        let mut rows = conn.query("SELECT t.id, t.name FROM tokens t INNER JOIN page_tokens pt ON t.id = pt.token_id WHERE pt.page_id = ?1", libsql::params![page_id.value()]).await.map_err(|e| e.to_string())?;
+        let mut tokens = Vec::new();
+        while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            let id = row.get::<i64>(0).map_err(|e| e.to_string())?;
+            let name = row.get::<String>(1).map_err(|e| e.to_string())?;
+            tokens.push(Token::new(id, name));
+        }
+        Ok(tokens)
+    }
+
+    async fn sync_page_tokens(&self, page_id: &PageId, token_ids: &Vec<TokenId>) -> Result<(), String> {
+        let conn = self.connect().await?;
+        conn.execute("DELETE FROM page_tokens WHERE page_id = ?1", libsql::params![page_id.value()]).await.map_err(|e| e.to_string())?;
+        for token_id in token_ids {
+            conn.execute("INSERT INTO page_tokens (page_id, token_id) VALUES (?1, ?2)", libsql::params![page_id.value(), token_id.value()]).await.map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    }
+
+    async fn find_related_pages(&self, page_id: &PageId) -> Result<Vec<Page>, String> {
+        let conn = self.connect().await?;
+        let mut rows = conn.query(
+            "SELECT DISTINCT p.id, p.title, p.description, p.created_at, p.updated_at FROM pages p JOIN page_tokens pt1 ON p.id = pt1.page_id JOIN page_tokens pt2 ON pt1.token_id = pt2.token_id WHERE pt2.page_id = ?1 AND p.id != ?1",
+            libsql::params![page_id.value()]
+        ).await.map_err(|e| e.to_string())?;
+
+        let mut pages = Vec::new();
+        while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            let id = row.get::<String>(0).map_err(|e| e.to_string())?;
+            let title = row.get::<String>(1).map_err(|e| e.to_string())?;
+            let description = row.get::<String>(2).map_err(|e| e.to_string())?;
+            let created_at = row.get::<String>(3).map_err(|e| e.to_string())?;
+            let updated_at = row.get::<String>(4).map_err(|e| e.to_string())?;
+            pages.push(Page::reconstruct(
+                id,
+                title,
+                description,
+                created_at,
+                updated_at,
+            ));
+        }
+
+        Ok(pages)
     }
 }

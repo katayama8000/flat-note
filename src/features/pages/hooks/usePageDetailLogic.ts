@@ -13,6 +13,7 @@ import { all, createLowlight } from "lowlight";
 import {
   createPage,
   getPage,
+  getRelatedPages,
   updatePage,
   updatePageDirect,
   updateTitle,
@@ -28,6 +29,7 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
   const isCreateMode = pageId === "new";
   const navigate = useNavigate();
   const [page, setPage] = useState<Page | null>(null);
+  const [relatedPages, setRelatedPages] = useState<Page[]>([]);
   const [titleInput, setTitleInput] = useState("");
   const [creating, setCreating] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -144,6 +146,8 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
       editor.commands.setContent(fetchedPage.description, {
         contentType: "markdown",
       });
+
+      getRelatedPages(pageId).then(setRelatedPages);
     });
   }, [pageId, isCreateMode, editor]);
 
@@ -216,5 +220,6 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     handleTitleKeyDown,
     handleSave,
     handleBack,
+    relatedPages,
   };
 };

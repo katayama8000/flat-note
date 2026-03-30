@@ -284,6 +284,19 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 48px;
+}
+
+.related-pages {
+  border-top: 1px solid #2e4d35;
+  padding-top: 24px;
+}
+
+.related-pages h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #a8c9ae;
+  margin-bottom: 16px;
 }
 
 .page-detail-title {

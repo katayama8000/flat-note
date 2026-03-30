@@ -24,3 +24,6 @@ export const updatePage = (id: string, description: string) =>
 
 export const updatePageDirect = (id: string, description: string) =>
   invoke("update_page_direct", { id, description });
+
+export const getRelatedPages = (id: string) =>
+    invoke<Page[]>("get_related_pages", { id });

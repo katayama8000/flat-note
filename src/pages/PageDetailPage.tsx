@@ -18,6 +18,7 @@ export const PageDetailPage = ({ pageId }: Props) => {
     handleTitleKeyDown,
     handleSave,
     handleBack,
+    relatedPages,
   } = usePageDetailLogic({ pageId });
 
   return (
@@ -33,6 +34,7 @@ export const PageDetailPage = ({ pageId }: Props) => {
       onBack={handleBack}
       onSave={handleSave}
       editor={editor}
+      relatedPages={relatedPages}
     />
   );
 };

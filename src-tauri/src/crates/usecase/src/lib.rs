@@ -1,3 +1,8 @@
+pub mod get_related_pages;
+pub mod sync_tokens;
+pub use get_related_pages::GetRelatedPagesUseCase;
+pub use sync_tokens::SyncTokensUseCase;
+
 use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
 use domain::{Page, PageRepository};
 
