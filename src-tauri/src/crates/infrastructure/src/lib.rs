@@ -22,8 +22,12 @@ impl PageRepository for InMemoryPageRepository {
             ),
         ];
         match sort_by {
-            SortBy::CreatedAt => pages.sort_by(|a, b| a.created_at().value().cmp(b.created_at().value())),
-            SortBy::UpdatedAt => pages.sort_by(|a, b| a.updated_at().value().cmp(b.updated_at().value())),
+            SortBy::CreatedAt => {
+                pages.sort_by(|a, b| a.created_at().value().cmp(b.created_at().value()))
+            }
+            SortBy::UpdatedAt => {
+                pages.sort_by(|a, b| a.updated_at().value().cmp(b.updated_at().value()))
+            }
         }
         Ok(pages)
     }
@@ -92,10 +96,7 @@ impl PageRepository for LibSqlPageRepository {
             sort_column
         );
 
-        let mut rows = conn
-            .query(&query, ())
-            .await
-            .map_err(|e| e.to_string())?;
+        let mut rows = conn.query(&query, ()).await.map_err(|e| e.to_string())?;
 
         let mut pages = Vec::new();
         while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
