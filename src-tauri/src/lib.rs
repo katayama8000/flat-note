@@ -1,8 +1,8 @@
-use domain::aggregate::value_object::SortBy;
+use domain::aggregate::value_object::{PageId, SortBy};
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
 use usecase::{
-    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase,
+    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, GetRelatedPagesUseCase, SyncTokensUseCase, UpdatePageUseCase,
     UpdateTitleUseCase,
 };
 use uuid::Uuid;
@@ -27,7 +27,11 @@ async fn get_page(id: String) -> Result<Option<Page>, String> {
 async fn update_page(id: String, description: String) -> Result<(), String> {
     let repository = LibSqlPageRepository::new(DB_URL);
     let use_case = UpdatePageUseCase::new(repository);
-    use_case.execute(&id, &description).await
+    use_case.execute(&id, &description).await?;
+
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = SyncTokensUseCase::new(repository);
+    use_case.execute(&PageId::new(&id), &description).await
 }
 
 #[tauri::command]
@@ -48,7 +52,11 @@ async fn update_title_direct(id: String, title: String) -> Result<(), String> {
 async fn update_page_direct(id: String, description: String) -> Result<(), String> {
     let repository = LibSqlPageRepository::new(DB_URL);
     let use_case = UpdatePageUseCase::new(repository);
-    use_case.execute_direct(&id, &description).await
+    use_case.execute_direct(&id, &description).await?;
+
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = SyncTokensUseCase::new(repository);
+    use_case.execute(&PageId::new(&id), &description).await
 }
 
 #[tauri::command]
@@ -66,6 +74,13 @@ async fn get_page_count() -> Result<u64, String> {
     use_case.execute().await
 }
 
+#[tauri::command]
+async fn get_related_pages(id: String) -> Result<Vec<Page>, String> {
+    let repository = LibSqlPageRepository::new(DB_URL);
+    let use_case = GetRelatedPagesUseCase::new(repository);
+    use_case.execute(&PageId::new(&id)).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -74,6 +89,7 @@ pub fn run() {
             get_pages,
             get_page,
             get_page_count,
+            get_related_pages,
             update_page,
             update_page_direct,
             update_title,
