@@ -1,4 +1,4 @@
-use domain::aggregate::value_object::{PageDescription, PageId, PageTitle};
+use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
 use domain::{Page, PageRepository};
 
 pub struct GetPagesUseCase<R: PageRepository> {
@@ -10,8 +10,8 @@ impl<R: PageRepository> GetPagesUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self) -> Result<Vec<Page>, String> {
-        self.repository.find_all().await
+    pub async fn execute(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
+        self.repository.find_all(sort_by).await
     }
 }
 

@@ -1,3 +1,4 @@
+use domain::aggregate::value_object::SortBy;
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
 use usecase::{
@@ -9,10 +10,10 @@ use uuid::Uuid;
 const DB_URL: &str = "http://127.0.0.1:8080";
 
 #[tauri::command]
-async fn get_pages() -> Result<Vec<Page>, String> {
+async fn get_pages(sort_by: SortBy) -> Result<Vec<Page>, String> {
     let repository = LibSqlPageRepository::new(DB_URL);
     let use_case = GetPagesUseCase::new(repository);
-    use_case.execute().await
+    use_case.execute(&sort_by).await
 }
 
 #[tauri::command]

@@ -126,6 +126,23 @@
   position: relative;
 }
 
+.toolbar {
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toolbar select {
+  background: #243b2a;
+  color: #d4edda;
+  border: 1px solid #3a5c42;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
 .page-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

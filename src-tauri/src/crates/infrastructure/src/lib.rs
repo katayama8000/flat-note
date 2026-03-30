@@ -1,11 +1,11 @@
-use domain::aggregate::value_object::{PageDescription, PageId, PageTitle};
+use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
 use domain::{Page, PageRepository};
 
 pub struct InMemoryPageRepository;
 
 impl PageRepository for InMemoryPageRepository {
-    async fn find_all(&self) -> Result<Vec<Page>, String> {
-        Ok(vec![
+    async fn find_all(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
+        let mut pages = vec![
             Page::reconstruct(
                 "1",
                 "Page returned from Rust",
@@ -20,11 +20,20 @@ impl PageRepository for InMemoryPageRepository {
                 "1710001000",
                 "1710001000",
             ),
-        ])
+        ];
+        match sort_by {
+            SortBy::CreatedAt => {
+                pages.sort_by(|a, b| a.created_at().value().cmp(b.created_at().value()))
+            }
+            SortBy::UpdatedAt => {
+                pages.sort_by(|a, b| a.updated_at().value().cmp(b.updated_at().value()))
+            }
+        }
+        Ok(pages)
     }
 
     async fn find_by_id(&self, id: &PageId) -> Result<Option<Page>, String> {
-        let pages = self.find_all().await?;
+        let pages = self.find_all(&SortBy::CreatedAt).await?;
         Ok(pages.into_iter().find(|p| p.id() == id))
     }
 
@@ -50,7 +59,7 @@ impl PageRepository for InMemoryPageRepository {
     }
 
     async fn count(&self) -> Result<u64, String> {
-        let pages = self.find_all().await?;
+        let pages = self.find_all(&SortBy::CreatedAt).await?;
         Ok(pages.len() as u64)
     }
 }
@@ -76,16 +85,18 @@ impl LibSqlPageRepository {
 }
 
 impl PageRepository for LibSqlPageRepository {
-    async fn find_all(&self) -> Result<Vec<Page>, String> {
+    async fn find_all(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
         let conn = self.connect().await?;
+        let sort_column = match sort_by {
+            SortBy::CreatedAt => "created_at",
+            SortBy::UpdatedAt => "updated_at",
+        };
+        let query = format!(
+            "SELECT id, title, description, created_at, updated_at FROM pages ORDER BY {} DESC",
+            sort_column
+        );
 
-        let mut rows = conn
-            .query(
-                "SELECT id, title, description, created_at, updated_at FROM pages",
-                (),
-            )
-            .await
-            .map_err(|e| e.to_string())?;
+        let mut rows = conn.query(&query, ()).await.map_err(|e| e.to_string())?;
 
         let mut pages = Vec::new();
         while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
