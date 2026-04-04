@@ -1,6 +1,21 @@
-.PHONY: env-init dev dev-prod build-prod db-seed db-clear db-query fmt fmt-check lint check
+.PHONY: help env-init dev dev-prod build-prod db-seed db-clear db-query fmt fmt-check lint check all 
 
 DB_FILE := $(CURDIR)/local.db
+
+help :
+	@echo "Available commands:"
+	@echo "  env-init      - Initialize environment variable files"
+	@echo "  dev           - Start development server with .env.local"
+	@echo "  dev-prod      - Start development server with .env.production"
+	@echo "  build-prod    - Build production binary with .env.production"
+	@echo "  db-seed       - Seed the database with initial data"
+	@echo "  db-clear      - Clear the database"
+	@echo "  db-query      - Query the database for pages"
+	@echo "  fmt           - Format code using Deno and Rust formatters"
+	@echo "  fmt-check     - Check code formatting without making changes"
+	@echo "  lint          - Lint code using Deno and Rust linters"
+	@echo "  check         - Type check code using Deno and Rust checkers"
+	@echo "  all           - Run fmt, lint, and check"
 
 env-init:
 	cp -n .env.local.example .env.local || true
