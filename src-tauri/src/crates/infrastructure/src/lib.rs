@@ -105,7 +105,8 @@ impl LibSqlPageRepository {
                 .await
                 .map_err(|e| e.to_string())?
         } else if Self::is_remote_url(&self.url) {
-            libsql::Builder::new_remote(self.url.clone(), "".to_string())
+            let auth_token = std::env::var("FLAT_NOTE_DB_AUTH_TOKEN").unwrap_or_default();
+            libsql::Builder::new_remote(self.url.clone(), auth_token)
                 .build()
                 .await
                 .map_err(|e| e.to_string())?
