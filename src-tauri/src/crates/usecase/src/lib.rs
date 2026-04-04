@@ -1,4 +1,4 @@
-use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
+use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy, UserId};
 use domain::{Page, PageRepository};
 
 pub struct GetPagesUseCase<R: PageRepository> {
@@ -10,8 +10,10 @@ impl<R: PageRepository> GetPagesUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
-        self.repository.find_all(sort_by).await
+    pub async fn execute(&self, user_id: &str, sort_by: &SortBy) -> Result<Vec<Page>, String> {
+        self.repository
+            .find_all(&UserId::new(user_id), sort_by)
+            .await
     }
 }
 
@@ -24,8 +26,10 @@ impl<R: PageRepository> GetPageUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self, id: &str) -> Result<Option<Page>, String> {
-        self.repository.find_by_id(&PageId::new(id)).await
+    pub async fn execute(&self, user_id: &str, id: &str) -> Result<Option<Page>, String> {
+        self.repository
+            .find_by_id(&UserId::new(user_id), &PageId::new(id))
+            .await
     }
 }
 
@@ -38,20 +42,25 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self, id: &str, title: &str) -> Result<(), String> {
+    pub async fn execute(&self, user_id: &str, id: &str, title: &str) -> Result<(), String> {
+        let owner_id = UserId::new(user_id);
         let page = self
             .repository
-            .find_by_id(&PageId::new(id))
+            .find_by_id(&owner_id, &PageId::new(id))
             .await?
             .ok_or_else(|| format!("Page not found: {id}"))?;
 
         let updated_page = page.with_title(title);
-        self.repository.save(&updated_page).await
+        self.repository.save(&owner_id, &updated_page).await
     }
 
-    pub async fn execute_direct(&self, id: &str, title: &str) -> Result<(), String> {
+    pub async fn execute_direct(&self, user_id: &str, id: &str, title: &str) -> Result<(), String> {
         self.repository
-            .update_title_direct(&PageId::new(id), &PageTitle::new(title))
+            .update_title_direct(
+                &UserId::new(user_id),
+                &PageId::new(id),
+                &PageTitle::new(title),
+            )
             .await
     }
 }
@@ -65,8 +74,8 @@ impl<R: PageRepository> CreatePageUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self, id: &str, title: &str) -> Result<Page, String> {
-        let page = Page::create(id, title, "");
+    pub async fn execute(&self, user_id: &str, id: &str, title: &str) -> Result<Page, String> {
+        let page = Page::create(id, user_id, title, "");
         self.repository.create(&page).await
     }
 }
@@ -80,20 +89,30 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self, id: &str, description: &str) -> Result<(), String> {
+    pub async fn execute(&self, user_id: &str, id: &str, description: &str) -> Result<(), String> {
+        let owner_id = UserId::new(user_id);
         let page = self
             .repository
-            .find_by_id(&PageId::new(id))
+            .find_by_id(&owner_id, &PageId::new(id))
             .await?
             .ok_or_else(|| format!("Page not found: {id}"))?;
 
         let updated_page = page.with_description(description);
-        self.repository.save(&updated_page).await
+        self.repository.save(&owner_id, &updated_page).await
     }
 
-    pub async fn execute_direct(&self, id: &str, description: &str) -> Result<(), String> {
+    pub async fn execute_direct(
+        &self,
+        user_id: &str,
+        id: &str,
+        description: &str,
+    ) -> Result<(), String> {
         self.repository
-            .update_description_direct(&PageId::new(id), &PageDescription::new(description))
+            .update_description_direct(
+                &UserId::new(user_id),
+                &PageId::new(id),
+                &PageDescription::new(description),
+            )
             .await
     }
 }
@@ -107,7 +126,7 @@ impl<R: PageRepository> CountPagesUseCase<R> {
         Self { repository }
     }
 
-    pub async fn execute(&self) -> Result<u64, String> {
-        self.repository.count().await
+    pub async fn execute(&self, user_id: &str) -> Result<u64, String> {
+        self.repository.count(&UserId::new(user_id)).await
     }
 }

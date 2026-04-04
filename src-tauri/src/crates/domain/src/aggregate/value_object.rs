@@ -4,6 +4,7 @@ pub mod page_id;
 pub mod page_title;
 pub mod sort_by;
 pub mod updated_at;
+pub mod user_id;
 
 pub use created_at::CreatedAt;
 pub use page_description::PageDescription;
@@ -11,3 +12,4 @@ pub use page_id::PageId;
 pub use page_title::PageTitle;
 pub use sort_by::SortBy;
 pub use updated_at::UpdatedAt;
+pub use user_id::UserId;

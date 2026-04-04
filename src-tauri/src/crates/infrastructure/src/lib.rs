@@ -1,13 +1,14 @@
-use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy};
+use domain::aggregate::value_object::{PageDescription, PageId, PageTitle, SortBy, UserId};
 use domain::{Page, PageRepository};
 
 pub struct InMemoryPageRepository;
 
 impl PageRepository for InMemoryPageRepository {
-    async fn find_all(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
+    async fn find_all(&self, owner_id: &UserId, sort_by: &SortBy) -> Result<Vec<Page>, String> {
         let mut pages = vec![
             Page::reconstruct(
                 "1",
+                "me-local-001",
                 "Page returned from Rust",
                 "This page was generated in Rust",
                 "1710000000",
@@ -15,12 +16,14 @@ impl PageRepository for InMemoryPageRepository {
             ),
             Page::reconstruct(
                 "2",
+                "me-local-001",
                 "Second page",
                 "Automatically serialized to JSON via Serialize derive",
                 "1710001000",
                 "1710001000",
             ),
         ];
+        pages.retain(|p| p.owner_id() == owner_id);
         match sort_by {
             SortBy::CreatedAt => {
                 pages.sort_by(|a, b| a.created_at().value().cmp(b.created_at().value()))
@@ -32,12 +35,12 @@ impl PageRepository for InMemoryPageRepository {
         Ok(pages)
     }
 
-    async fn find_by_id(&self, id: &PageId) -> Result<Option<Page>, String> {
-        let pages = self.find_all(&SortBy::CreatedAt).await?;
+    async fn find_by_id(&self, owner_id: &UserId, id: &PageId) -> Result<Option<Page>, String> {
+        let pages = self.find_all(owner_id, &SortBy::CreatedAt).await?;
         Ok(pages.into_iter().find(|p| p.id() == id))
     }
 
-    async fn save(&self, page: &Page) -> Result<(), String> {
+    async fn save(&self, _owner_id: &UserId, page: &Page) -> Result<(), String> {
         let _ = page;
         Ok(())
     }
@@ -46,20 +49,26 @@ impl PageRepository for InMemoryPageRepository {
         Ok(page.clone())
     }
 
-    async fn update_title_direct(&self, _id: &PageId, _title: &PageTitle) -> Result<(), String> {
+    async fn update_title_direct(
+        &self,
+        _owner_id: &UserId,
+        _id: &PageId,
+        _title: &PageTitle,
+    ) -> Result<(), String> {
         Ok(())
     }
 
     async fn update_description_direct(
         &self,
+        _owner_id: &UserId,
         _id: &PageId,
         _description: &PageDescription,
     ) -> Result<(), String> {
         Ok(())
     }
 
-    async fn count(&self) -> Result<u64, String> {
-        let pages = self.find_all(&SortBy::CreatedAt).await?;
+    async fn count(&self, owner_id: &UserId) -> Result<u64, String> {
+        let pages = self.find_all(owner_id, &SortBy::CreatedAt).await?;
         Ok(pages.len() as u64)
     }
 }
@@ -85,28 +94,33 @@ impl LibSqlPageRepository {
 }
 
 impl PageRepository for LibSqlPageRepository {
-    async fn find_all(&self, sort_by: &SortBy) -> Result<Vec<Page>, String> {
+    async fn find_all(&self, owner_id: &UserId, sort_by: &SortBy) -> Result<Vec<Page>, String> {
         let conn = self.connect().await?;
         let sort_column = match sort_by {
             SortBy::CreatedAt => "created_at",
             SortBy::UpdatedAt => "updated_at",
         };
         let query = format!(
-            "SELECT id, title, description, created_at, updated_at FROM pages ORDER BY {} DESC",
+            "SELECT id, owner_id, title, description, created_at, updated_at FROM pages WHERE owner_id = ?1 ORDER BY {} DESC",
             sort_column
         );
 
-        let mut rows = conn.query(&query, ()).await.map_err(|e| e.to_string())?;
+        let mut rows = conn
+            .query(&query, libsql::params![owner_id.value()])
+            .await
+            .map_err(|e| e.to_string())?;
 
         let mut pages = Vec::new();
         while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
             let id = row.get::<String>(0).map_err(|e| e.to_string())?;
-            let title = row.get::<String>(1).map_err(|e| e.to_string())?;
-            let description = row.get::<String>(2).map_err(|e| e.to_string())?;
-            let created_at = row.get::<String>(3).map_err(|e| e.to_string())?;
-            let updated_at = row.get::<String>(4).map_err(|e| e.to_string())?;
+            let owner_id = row.get::<String>(1).map_err(|e| e.to_string())?;
+            let title = row.get::<String>(2).map_err(|e| e.to_string())?;
+            let description = row.get::<String>(3).map_err(|e| e.to_string())?;
+            let created_at = row.get::<String>(4).map_err(|e| e.to_string())?;
+            let updated_at = row.get::<String>(5).map_err(|e| e.to_string())?;
             pages.push(Page::reconstruct(
                 id,
+                owner_id,
                 title,
                 description,
                 created_at,
@@ -117,13 +131,13 @@ impl PageRepository for LibSqlPageRepository {
         Ok(pages)
     }
 
-    async fn find_by_id(&self, id: &PageId) -> Result<Option<Page>, String> {
+    async fn find_by_id(&self, owner_id: &UserId, id: &PageId) -> Result<Option<Page>, String> {
         let conn = self.connect().await?;
 
         let mut rows = conn
             .query(
-                "SELECT id, title, description, created_at, updated_at FROM pages WHERE id = ?1",
-                libsql::params![id.value()],
+                "SELECT id, owner_id, title, description, created_at, updated_at FROM pages WHERE id = ?1 AND owner_id = ?2",
+                libsql::params![id.value(), owner_id.value()],
             )
             .await
             .map_err(|e| e.to_string())?;
@@ -135,6 +149,7 @@ impl PageRepository for LibSqlPageRepository {
                 row.get::<String>(2).map_err(|e| e.to_string())?,
                 row.get::<String>(3).map_err(|e| e.to_string())?,
                 row.get::<String>(4).map_err(|e| e.to_string())?,
+                row.get::<String>(5).map_err(|e| e.to_string())?,
             );
             Ok(Some(page))
         } else {
@@ -142,15 +157,16 @@ impl PageRepository for LibSqlPageRepository {
         }
     }
 
-    async fn save(&self, page: &Page) -> Result<(), String> {
+    async fn save(&self, owner_id: &UserId, page: &Page) -> Result<(), String> {
         let conn = self.connect().await?;
 
         conn.execute(
-            "UPDATE pages SET title = ?1, description = ?2, updated_at = CURRENT_TIMESTAMP WHERE id = ?3",
+            "UPDATE pages SET title = ?1, description = ?2, updated_at = CURRENT_TIMESTAMP WHERE id = ?3 AND owner_id = ?4",
             libsql::params![
                 page.title().value(),
                 page.description().value(),
-                page.id().value()
+                page.id().value(),
+                owner_id.value()
             ],
         )
         .await
@@ -163,9 +179,10 @@ impl PageRepository for LibSqlPageRepository {
         let conn = self.connect().await?;
 
         conn.execute(
-            "INSERT INTO pages (id, title, description) VALUES (?1, ?2, ?3)",
+            "INSERT INTO pages (id, owner_id, title, description) VALUES (?1, ?2, ?3, ?4)",
             libsql::params![
                 page.id().value(),
+                page.owner_id().value(),
                 page.title().value(),
                 page.description().value()
             ],
@@ -173,17 +190,22 @@ impl PageRepository for LibSqlPageRepository {
         .await
         .map_err(|e| e.to_string())?;
 
-        self.find_by_id(page.id())
+        self.find_by_id(page.owner_id(), page.id())
             .await?
             .ok_or_else(|| format!("Page not found after creation: {}", page.id().value()))
     }
 
-    async fn update_title_direct(&self, id: &PageId, title: &PageTitle) -> Result<(), String> {
+    async fn update_title_direct(
+        &self,
+        owner_id: &UserId,
+        id: &PageId,
+        title: &PageTitle,
+    ) -> Result<(), String> {
         let conn = self.connect().await?;
 
         conn.execute(
-            "UPDATE pages SET title = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2",
-            libsql::params![title.value(), id.value()],
+            "UPDATE pages SET title = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2 AND owner_id = ?3",
+            libsql::params![title.value(), id.value(), owner_id.value()],
         )
         .await
         .map_err(|e| e.to_string())?;
@@ -193,14 +215,15 @@ impl PageRepository for LibSqlPageRepository {
 
     async fn update_description_direct(
         &self,
+        owner_id: &UserId,
         id: &PageId,
         description: &PageDescription,
     ) -> Result<(), String> {
         let conn = self.connect().await?;
 
         conn.execute(
-            "UPDATE pages SET description = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2",
-            libsql::params![description.value(), id.value()],
+            "UPDATE pages SET description = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2 AND owner_id = ?3",
+            libsql::params![description.value(), id.value(), owner_id.value()],
         )
         .await
         .map_err(|e| e.to_string())?;
@@ -208,11 +231,14 @@ impl PageRepository for LibSqlPageRepository {
         Ok(())
     }
 
-    async fn count(&self) -> Result<u64, String> {
+    async fn count(&self, owner_id: &UserId) -> Result<u64, String> {
         let conn = self.connect().await?;
 
         let mut rows = conn
-            .query("SELECT COUNT(*) FROM pages", ())
+            .query(
+                "SELECT COUNT(*) FROM pages WHERE owner_id = ?1",
+                libsql::params![owner_id.value()],
+            )
             .await
             .map_err(|e| e.to_string())?;
 
