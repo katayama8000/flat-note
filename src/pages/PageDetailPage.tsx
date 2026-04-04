@@ -11,11 +11,15 @@ export const PageDetailPage = ({ pageId }: Props) => {
     page,
     editor,
     isCreateMode,
+    isTableActive,
+    tableToolbarPosition,
     titleInput,
     creating,
     savedAt,
     setTitleInput,
     handleTitleKeyDown,
+    handleAddColumn,
+    handleDeleteColumn,
     handleSave,
     handleBack,
   } = usePageDetailLogic({ pageId });
@@ -24,6 +28,8 @@ export const PageDetailPage = ({ pageId }: Props) => {
     <PageDetailView
       hasPage={Boolean(page)}
       isCreateMode={isCreateMode}
+      isTableActive={isTableActive}
+      tableToolbarPosition={tableToolbarPosition}
       titleInput={titleInput}
       creating={creating}
       savedAt={savedAt}
@@ -31,6 +37,8 @@ export const PageDetailPage = ({ pageId }: Props) => {
       onTitleChange={setTitleInput}
       onTitleKeyDown={handleTitleKeyDown}
       onBack={handleBack}
+      onAddColumn={handleAddColumn}
+      onDeleteColumn={handleDeleteColumn}
       onSave={handleSave}
       editor={editor}
     />
