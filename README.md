@@ -14,7 +14,6 @@ A desktop note-taking app built with Tauri, React, and TypeScript.
   - clippy (for linting)
 - Deno
 - Turso CLI (if using Turso for local development)
-  - sqld (if using `--db-file` with Turso)
 
 ## Commands
 
