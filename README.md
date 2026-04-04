@@ -23,6 +23,19 @@ make fmt    # Format (Deno + Rust)
 make lint   # Lint (Deno + Rust)
 ```
 
+## Build for macOS desktop
+
+Run the Tauri production build from the project root:
+
+```bash
+deno task tauri build
+```
+
+Build outputs:
+
+- app bundle: `src-tauri/target/release/bundle/macos/flat-note.app`
+- dmg package: `src-tauri/target/release/bundle/dmg/flat-note_0.1.0_aarch64.dmg`
+
 ### Install dependencies
 
 ```bash
