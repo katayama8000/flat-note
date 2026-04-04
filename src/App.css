@@ -332,6 +332,34 @@ button:active {
   gap: 16px;
 }
 
+.table-floating-toolbar {
+  position: fixed;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  z-index: 300;
+  background: #1e3825;
+  border: 1px solid #3a5c42;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.table-toolbar-button {
+  background: #243b2a;
+  border: 1px solid #3a5c42;
+  color: #d4edda;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.table-toolbar-button:hover {
+  background-color: #2e4d35;
+  border-color: #5a9966;
+}
+
 .page-detail-title {
   font-size: 24px;
   font-weight: 700;
@@ -526,6 +554,37 @@ button:active {
   border: none;
   border-top: 1px solid #2e4d35;
   margin: 1em 0;
+}
+
+/* Tables */
+.tiptap-editor .tableWrapper {
+  overflow-x: auto;
+  margin: 0.9em 0;
+}
+
+.tiptap-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #3a5c42;
+  background: #1a2f20;
+}
+
+.tiptap-editor th,
+.tiptap-editor td {
+  border: 1px solid #3a5c42;
+  padding: 8px 10px;
+  vertical-align: top;
+  min-width: 120px;
+}
+
+.tiptap-editor th {
+  background: #243b2a;
+  color: #d4edda;
+  font-weight: 600;
+}
+
+.tiptap-editor td {
+  color: #c9ddcd;
 }
 
 /* Task list (checkbox) */
