@@ -1,5 +1,5 @@
-use domain::aggregate::value_object::UserId;
 use domain::PageRepository;
+use domain::aggregate::value_object::UserId;
 
 pub struct CountPagesUseCase<R: PageRepository> {
     repository: R,

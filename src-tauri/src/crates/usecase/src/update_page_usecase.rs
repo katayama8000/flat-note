@@ -1,5 +1,5 @@
-use domain::aggregate::value_object::{PageDescription, PageId, UserId};
 use domain::PageRepository;
+use domain::aggregate::value_object::{PageDescription, PageId, UserId};
 
 pub struct UpdatePageUseCase<R: PageRepository> {
     repository: R,

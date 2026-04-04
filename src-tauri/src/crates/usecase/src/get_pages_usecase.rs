@@ -11,6 +11,8 @@ impl<R: PageRepository> GetPagesUseCase<R> {
     }
 
     pub async fn execute(&self, user_id: &str, sort_by: &SortBy) -> Result<Vec<Page>, String> {
-        self.repository.find_all(&UserId::new(user_id), sort_by).await
+        self.repository
+            .find_all(&UserId::new(user_id), sort_by)
+            .await
     }
 }
