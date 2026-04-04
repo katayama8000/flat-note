@@ -3,20 +3,38 @@ import "../App.css";
 import {
   getPageCount,
   getPages,
+  searchPages,
   SortBy,
 } from "../features/pages/api/pageApi.ts";
 import { PageCard } from "../features/pages/components/PageCard.tsx";
 import type { Page } from "../features/pages/types/page.ts";
+import { useGlobalSearch } from "../hooks/useGlobalSearch.tsx";
 
 export const HomePage = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
   const [sortBy, setSortBy] = useState<SortBy>("updatedAt");
+  const { query } = useGlobalSearch();
 
   useEffect(() => {
-    getPages(sortBy).then(setPages);
     getPageCount().then(setPageCount);
-  }, [sortBy]);
+  }, []);
+
+  useEffect(() => {
+    const keyword = query.trim();
+    const timer = globalThis.setTimeout(() => {
+      if (keyword) {
+        searchPages(keyword, sortBy, 100)
+          .then(setPages)
+          .catch(() => setPages([]));
+        return;
+      }
+
+      getPages(sortBy).then(setPages);
+    }, 180);
+
+    return () => globalThis.clearTimeout(timer);
+  }, [query, sortBy]);
 
   return (
     <div className="home">
@@ -32,7 +50,9 @@ export const HomePage = () => {
       <div className="page-grid">
         {pages.map((page) => <PageCard key={page.id} page={page} />)}
       </div>
-      <div className="page-count">{pageCount} pages</div>
+      <div className="page-count">
+        {pages.length} / {pageCount} pages
+      </div>
     </div>
   );
 };
