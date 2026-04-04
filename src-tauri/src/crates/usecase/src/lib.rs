@@ -11,7 +11,9 @@ impl<R: PageRepository> GetPagesUseCase<R> {
     }
 
     pub async fn execute(&self, user_id: &str, sort_by: &SortBy) -> Result<Vec<Page>, String> {
-        self.repository.find_all(&UserId::new(user_id), sort_by).await
+        self.repository
+            .find_all(&UserId::new(user_id), sort_by)
+            .await
     }
 }
 
@@ -54,7 +56,11 @@ impl<R: PageRepository> UpdateTitleUseCase<R> {
 
     pub async fn execute_direct(&self, user_id: &str, id: &str, title: &str) -> Result<(), String> {
         self.repository
-            .update_title_direct(&UserId::new(user_id), &PageId::new(id), &PageTitle::new(title))
+            .update_title_direct(
+                &UserId::new(user_id),
+                &PageId::new(id),
+                &PageTitle::new(title),
+            )
             .await
     }
 }
@@ -95,7 +101,12 @@ impl<R: PageRepository> UpdatePageUseCase<R> {
         self.repository.save(&owner_id, &updated_page).await
     }
 
-    pub async fn execute_direct(&self, user_id: &str, id: &str, description: &str) -> Result<(), String> {
+    pub async fn execute_direct(
+        &self,
+        user_id: &str,
+        id: &str,
+        description: &str,
+    ) -> Result<(), String> {
         self.repository
             .update_description_direct(
                 &UserId::new(user_id),
