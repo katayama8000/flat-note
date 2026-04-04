@@ -30,6 +30,12 @@ turso db shell http://127.0.0.1:8080 < sql/seed.sql
 turso db shell http://127.0.0.1:8080 "SELECT * FROM pages;"
 ```
 
+### Query pages for current hardcoded user
+
+```bash
+turso db shell http://127.0.0.1:8080 "SELECT * FROM pages WHERE owner_id = 'me-local-001';"
+```
+
 ### Clear all data from pages table
 
 ```bash
