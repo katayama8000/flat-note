@@ -82,14 +82,61 @@ impl LibSqlPageRepository {
         Self { url: url.into() }
     }
 
+    fn local_db_path(url: &str) -> Option<&str> {
+        if let Some(path) = url.strip_prefix("file://") {
+            return Some(path);
+        }
+
+        if let Some(path) = url.strip_prefix("file:") {
+            return Some(path);
+        }
+
+        None
+    }
+
+    fn is_remote_url(url: &str) -> bool {
+        url.starts_with("http://") || url.starts_with("https://") || url.starts_with("libsql://")
+    }
+
     async fn connect(&self) -> Result<libsql::Connection, String> {
-        let db = libsql::Builder::new_remote(self.url.clone(), "".to_string())
-            .build()
-            .await
-            .map_err(|e| e.to_string())?;
+        let db = if let Some(path) = Self::local_db_path(&self.url) {
+            libsql::Builder::new_local(path)
+                .build()
+                .await
+                .map_err(|e| e.to_string())?
+        } else if Self::is_remote_url(&self.url) {
+            libsql::Builder::new_remote(self.url.clone(), "".to_string())
+                .build()
+                .await
+                .map_err(|e| e.to_string())?
+        } else {
+            libsql::Builder::new_local(&self.url)
+                .build()
+                .await
+                .map_err(|e| e.to_string())?
+        };
 
         let conn = db.connect().map_err(|e| e.to_string())?;
+        Self::ensure_schema(&conn).await?;
         Ok(conn)
+    }
+
+    async fn ensure_schema(conn: &libsql::Connection) -> Result<(), String> {
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS pages (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+            (),
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pages_owner_id_updated_at ON pages (owner_id, updated_at DESC)",
+            (),
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }
 

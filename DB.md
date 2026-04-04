@@ -1,43 +1,48 @@
-# Turso Local Development
+# Local DB Development (No Server)
 
 ## Install
 
 ```bash
-# Turso CLI
-curl -sSfL https://get.tur.so/install.sh | bash
-
-# sqld (required for --db-file)
-brew install libsql/sqld/sqld
+# sqlite3 (usually already installed on macOS)
+brew install sqlite
 ```
 
 ## Commands
 
-### start local Turso instance with local.db file
-
-```bash
-turso dev --db-file local.db
-```
-
 ### seed local.db with initial data
 
 ```bash
-turso db shell http://127.0.0.1:8080 < sql/seed.sql
+make db-seed
 ```
 
-### Query pages
+### query pages
 
 ```bash
-turso db shell http://127.0.0.1:8080 "SELECT * FROM pages;"
+make db-query
 ```
 
-### Query pages for current hardcoded user
+### query pages for current hardcoded user
 
 ```bash
-turso db shell http://127.0.0.1:8080 "SELECT * FROM pages WHERE owner_id = 'me-local-001';"
+sqlite3 local.db "SELECT * FROM pages WHERE owner_id = 'me-local-001';"
 ```
 
-### Clear all data from pages table
+### clear all data from pages table
 
 ```bash
-turso db shell http://127.0.0.1:8080 < sql/clear.sql
+make db-clear
+```
+
+### run app (uses local.db by default)
+
+```bash
+make dev
+```
+
+## Optional: switch DB URL
+
+`src-tauri` reads `FLAT_NOTE_DB_URL`. Default is `file:local.db`.
+
+```bash
+FLAT_NOTE_DB_URL=file:local.db make dev
 ```
