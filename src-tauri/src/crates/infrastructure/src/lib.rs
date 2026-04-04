@@ -71,6 +71,68 @@ impl PageRepository for InMemoryPageRepository {
         let pages = self.find_all(owner_id, &SortBy::CreatedAt).await?;
         Ok(pages.len() as u64)
     }
+
+    async fn search(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        sort_by: &SortBy,
+        limit: u32,
+    ) -> Result<Vec<Page>, String> {
+        let normalized = keyword.trim().to_lowercase();
+        let mut pages = self.find_all(owner_id, sort_by).await?;
+        if normalized.is_empty() {
+            pages.truncate(limit as usize);
+            return Ok(pages);
+        }
+
+        pages.retain(|page| {
+            let title = page.title().value().to_lowercase();
+            let description = page.description().value().to_lowercase();
+            title.contains(&normalized) || description.contains(&normalized)
+        });
+        pages.truncate(limit as usize);
+        Ok(pages)
+    }
+
+    async fn suggest_titles(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        limit: u32,
+    ) -> Result<Vec<String>, String> {
+        let normalized = keyword.trim().to_lowercase();
+        if normalized.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let pages = self.find_all(owner_id, &SortBy::UpdatedAt).await?;
+        let mut titles = Vec::new();
+        for page in pages {
+            let title = page.title().value().trim();
+            if title.is_empty() {
+                continue;
+            }
+
+            if !title.to_lowercase().contains(&normalized) {
+                continue;
+            }
+
+            if titles
+                .iter()
+                .any(|item: &String| item.eq_ignore_ascii_case(title))
+            {
+                continue;
+            }
+
+            titles.push(title.to_string());
+            if titles.len() >= limit as usize {
+                break;
+            }
+        }
+
+        Ok(titles)
+    }
 }
 
 pub struct LibSqlPageRepository {
@@ -296,5 +358,70 @@ impl PageRepository for LibSqlPageRepository {
         } else {
             Ok(0)
         }
+    }
+
+    async fn search(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        sort_by: &SortBy,
+        limit: u32,
+    ) -> Result<Vec<Page>, String> {
+        let conn = self.connect().await?;
+        let sort_column = match sort_by {
+            SortBy::CreatedAt => "created_at",
+            SortBy::UpdatedAt => "updated_at",
+        };
+
+        let query = format!(
+            "SELECT id, owner_id, title, description, created_at, updated_at FROM pages WHERE owner_id = ?1 AND (LOWER(title) LIKE '%' || LOWER(?2) || '%' OR LOWER(description) LIKE '%' || LOWER(?2) || '%') ORDER BY {} DESC LIMIT ?3",
+            sort_column
+        );
+
+        let mut rows = conn
+            .query(&query, libsql::params![owner_id.value(), keyword, limit])
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut pages = Vec::new();
+        while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            pages.push(Page::reconstruct(
+                row.get::<String>(0).map_err(|e| e.to_string())?,
+                row.get::<String>(1).map_err(|e| e.to_string())?,
+                row.get::<String>(2).map_err(|e| e.to_string())?,
+                row.get::<String>(3).map_err(|e| e.to_string())?,
+                row.get::<String>(4).map_err(|e| e.to_string())?,
+                row.get::<String>(5).map_err(|e| e.to_string())?,
+            ));
+        }
+
+        Ok(pages)
+    }
+
+    async fn suggest_titles(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        limit: u32,
+    ) -> Result<Vec<String>, String> {
+        let conn = self.connect().await?;
+
+        let mut rows = conn
+            .query(
+                "SELECT DISTINCT title FROM pages WHERE owner_id = ?1 AND LOWER(title) LIKE '%' || LOWER(?2) || '%' ORDER BY updated_at DESC LIMIT ?3",
+                libsql::params![owner_id.value(), keyword, limit],
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut titles = Vec::new();
+        while let Some(row) = rows.next().await.map_err(|e| e.to_string())? {
+            let title = row.get::<String>(0).map_err(|e| e.to_string())?;
+            if !title.trim().is_empty() {
+                titles.push(title);
+            }
+        }
+
+        Ok(titles)
     }
 }

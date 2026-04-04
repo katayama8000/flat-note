@@ -35,4 +35,17 @@ pub trait PageRepository {
         &self,
         owner_id: &UserId,
     ) -> impl std::future::Future<Output = Result<u64, String>> + Send;
+    fn search(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        sort_by: &SortBy,
+        limit: u32,
+    ) -> impl std::future::Future<Output = Result<Vec<Page>, String>> + Send;
+    fn suggest_titles(
+        &self,
+        owner_id: &UserId,
+        keyword: &str,
+        limit: u32,
+    ) -> impl std::future::Future<Output = Result<Vec<String>, String>> + Send;
 }

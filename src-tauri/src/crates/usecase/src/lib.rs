@@ -130,3 +130,46 @@ impl<R: PageRepository> CountPagesUseCase<R> {
         self.repository.count(&UserId::new(user_id)).await
     }
 }
+
+pub struct SearchPagesUseCase<R: PageRepository> {
+    repository: R,
+}
+
+impl<R: PageRepository> SearchPagesUseCase<R> {
+    pub fn new(repository: R) -> Self {
+        Self { repository }
+    }
+
+    pub async fn execute(
+        &self,
+        user_id: &str,
+        keyword: &str,
+        sort_by: &SortBy,
+        limit: u32,
+    ) -> Result<Vec<Page>, String> {
+        self.repository
+            .search(&UserId::new(user_id), keyword, sort_by, limit)
+            .await
+    }
+}
+
+pub struct SuggestPageTitlesUseCase<R: PageRepository> {
+    repository: R,
+}
+
+impl<R: PageRepository> SuggestPageTitlesUseCase<R> {
+    pub fn new(repository: R) -> Self {
+        Self { repository }
+    }
+
+    pub async fn execute(
+        &self,
+        user_id: &str,
+        keyword: &str,
+        limit: u32,
+    ) -> Result<Vec<String>, String> {
+        self.repository
+            .suggest_titles(&UserId::new(user_id), keyword, limit)
+            .await
+    }
+}

@@ -2,8 +2,8 @@ use domain::aggregate::value_object::SortBy;
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
 use usecase::{
-    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, UpdatePageUseCase,
-    UpdateTitleUseCase,
+    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, SearchPagesUseCase,
+    SuggestPageTitlesUseCase, UpdatePageUseCase, UpdateTitleUseCase,
 };
 use uuid::Uuid;
 
@@ -73,6 +73,22 @@ async fn get_page_count() -> Result<u64, String> {
     use_case.execute(CURRENT_USER_ID).await
 }
 
+#[tauri::command]
+async fn search_pages(query: String, sort_by: SortBy, limit: u32) -> Result<Vec<Page>, String> {
+    let repository = LibSqlPageRepository::new(db_url());
+    let use_case = SearchPagesUseCase::new(repository);
+    use_case
+        .execute(CURRENT_USER_ID, &query, &sort_by, limit)
+        .await
+}
+
+#[tauri::command]
+async fn suggest_page_titles(query: String, limit: u32) -> Result<Vec<String>, String> {
+    let repository = LibSqlPageRepository::new(db_url());
+    let use_case = SuggestPageTitlesUseCase::new(repository);
+    use_case.execute(CURRENT_USER_ID, &query, limit).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -81,6 +97,8 @@ pub fn run() {
             get_pages,
             get_page,
             get_page_count,
+            search_pages,
+            suggest_page_titles,
             update_page,
             update_page_direct,
             update_title,
