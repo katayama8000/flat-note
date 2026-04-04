@@ -13,7 +13,7 @@ A desktop note-taking app built with Tauri, React, and TypeScript.
 - Rust
   - clippy (for linting)
 - Deno
-- Turso CLI (if using Turso for local development)
+- Turso CLI
 
 ## Commands
 
@@ -58,3 +58,14 @@ Build outputs:
 deno install
 cargo add
 ```
+
+## Database
+
+### local development
+
+- local SQLite database (`local.db`)
+
+### production
+
+- remote [Turso](https://app.turso.tech/katayama8000/databases/flat-note)
+  database, accessed via HTTP API with auth token
