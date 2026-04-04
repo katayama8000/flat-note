@@ -18,10 +18,26 @@ A desktop note-taking app built with Tauri, React, and TypeScript.
 ## Commands
 
 ```bash
-make dev    # Run for desktop (with Turso local DB)
+make dev        # Run for desktop (loads .env.local if present)
+make dev-prod   # Run for desktop against production Turso (.env.production)
+make build-prod # Build desktop app against production Turso (.env.production)
 make fmt    # Format (Deno + Rust)
 make lint   # Lint (Deno + Rust)
 ```
+
+## Environment files
+
+Create local env files from examples:
+
+```bash
+make env-init
+
+# or manually
+cp .env.local.example .env.local
+cp .env.production.example .env.production
+```
+
+Then edit `.env.production` with your real Turso token.
 
 ## Build for macOS desktop
 

@@ -17,6 +17,10 @@ local.db
 local.db-shm
 local.db-wal
 
+# Environment files (keep secrets out of git)
+.env.local
+.env.production
+
 # Editor directories and files
 # .vscode/*
 !.vscode/extensions.json
