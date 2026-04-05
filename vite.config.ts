@@ -24,6 +24,37 @@ export default defineConfig(() => ({
   //
   // 1. prevent Vite from obscuring rust errors
   clearScreen: false,
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return;
+          }
+
+          if (id.includes("@tiptap") || id.includes("prosemirror")) {
+            return "editor-core";
+          }
+
+          if (id.includes("lowlight") || id.includes("highlight.js")) {
+            return "editor-highlight";
+          }
+
+          if (id.includes("@tanstack")) {
+            return "router-vendor";
+          }
+
+          if (
+            id.includes("react") ||
+            id.includes("scheduler") ||
+            id.includes("use-sync-external-store")
+          ) {
+            return "react-vendor";
+          }
+        },
+      },
+    },
+  },
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
     port: 1420,

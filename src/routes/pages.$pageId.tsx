@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageDetailPage } from "../pages/PageDetailPage.tsx";
+import { lazy, Suspense } from "react";
+
+const LazyPageDetailPage = lazy(() =>
+  import("../pages/PageDetailPage.tsx").then((module) => ({
+    default: module.PageDetailPage,
+  }))
+);
 
 export const Route = createFileRoute("/pages/$pageId")({
   component: PageDetail,
@@ -8,5 +14,9 @@ export const Route = createFileRoute("/pages/$pageId")({
 function PageDetail() {
   const { pageId } = Route.useParams();
 
-  return <PageDetailPage pageId={pageId} />;
+  return (
+    <Suspense fallback={<div className="page-detail">Loading...</div>}>
+      <LazyPageDetailPage pageId={pageId} />
+    </Suspense>
+  );
 }

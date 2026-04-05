@@ -14,7 +14,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { Markdown } from "@tiptap/markdown";
-import { all, createLowlight } from "lowlight";
+import { common, createLowlight } from "lowlight";
 import {
   createPage,
   deletePage,
@@ -201,7 +201,7 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ codeBlock: false }),
-      CodeBlockLowlight.configure({ lowlight: createLowlight(all) }),
+      CodeBlockLowlight.configure({ lowlight: createLowlight(common) }),
       TaskList,
       TaskItem.configure({ nested: true }),
       CharacterCount,
