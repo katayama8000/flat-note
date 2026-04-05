@@ -19,6 +19,8 @@ export const getPage = (id: string) => invoke<Page | null>("get_page", { id });
 export const createPage = (title: string) =>
   invoke<Page>("create_page", { title });
 
+export const deletePage = (id: string) => invoke("delete_page", { id });
+
 export const updateTitle = (id: string, title: string) =>
   invoke("update_title", { id, title });
 

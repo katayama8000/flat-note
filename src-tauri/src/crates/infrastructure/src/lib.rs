@@ -49,6 +49,10 @@ impl PageRepository for InMemoryPageRepository {
         Ok(page.clone())
     }
 
+    async fn delete(&self, _owner_id: &UserId, _id: &PageId) -> Result<(), String> {
+        Ok(())
+    }
+
     async fn update_title_direct(
         &self,
         _owner_id: &UserId,
@@ -215,7 +219,7 @@ impl LibSqlPageRepository {
 
 impl PageRepository for LibSqlPageRepository {
     async fn find_all(&self, owner_id: &UserId, sort_by: &SortBy) -> Result<Vec<Page>, String> {
-        let conn = self.connect().await?;
+        let conn: libsql::Connection = self.connect().await?;
         let sort_column = match sort_by {
             SortBy::CreatedAt => "created_at",
             SortBy::UpdatedAt => "updated_at",
@@ -313,6 +317,24 @@ impl PageRepository for LibSqlPageRepository {
         self.find_by_id(page.owner_id(), page.id())
             .await?
             .ok_or_else(|| format!("Page not found after creation: {}", page.id().value()))
+    }
+
+    async fn delete(&self, owner_id: &UserId, id: &PageId) -> Result<(), String> {
+        let conn = self.connect().await?;
+
+        let affected_rows = conn
+            .execute(
+                "DELETE FROM pages WHERE id = ?1 AND owner_id = ?2",
+                libsql::params![id.value(), owner_id.value()],
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+
+        if affected_rows == 0 {
+            return Err(format!("Page not found: {}", id.value()));
+        }
+
+        Ok(())
     }
 
     async fn update_title_direct(

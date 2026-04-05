@@ -17,6 +17,7 @@ import { Markdown } from "@tiptap/markdown";
 import { all, createLowlight } from "lowlight";
 import {
   createPage,
+  deletePage,
   getPage,
   updatePage,
   updatePageDirect,
@@ -184,6 +185,8 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
   const [page, setPage] = useState<Page | null>(null);
   const [titleInput, setTitleInput] = useState("");
   const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [isTableActive, setIsTableActive] = useState(false);
   const [tableToolbarPosition, setTableToolbarPosition] = useState<
@@ -482,6 +485,42 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     navigate({ to: "/" });
   }, [handleSave, navigate, isCreateMode, titleInput]);
 
+  const handleDelete = useCallback(() => {
+    if (isCreateMode || !page || deleting) {
+      return;
+    }
+
+    setIsDeleteModalOpen(true);
+  }, [deleting, isCreateMode, page]);
+
+  const handleCancelDelete = useCallback(() => {
+    if (deleting) {
+      return;
+    }
+
+    setIsDeleteModalOpen(false);
+  }, [deleting]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (isCreateMode || !page || deleting) {
+      return;
+    }
+
+    if (autoSaveTimer.current) {
+      clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = null;
+    }
+
+    setDeleting(true);
+    try {
+      await deletePage(page.id);
+      setIsDeleteModalOpen(false);
+      navigate({ to: "/" });
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleting, isCreateMode, navigate, page]);
+
   // Global save shortcut (Ctrl/Cmd + S)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -502,6 +541,8 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     tableToolbarPosition,
     titleInput,
     creating,
+    deleting,
+    isDeleteModalOpen,
     savedAt,
     setTitleInput,
     handleTitleKeyDown,
@@ -509,5 +550,8 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     handleDeleteColumn,
     handleSave,
     handleBack,
+    handleDelete,
+    handleCancelDelete,
+    handleConfirmDelete,
   };
 };

@@ -19,6 +19,11 @@ pub trait PageRepository {
     ) -> impl std::future::Future<Output = Result<(), String>> + Send;
     fn create(&self, page: &Page)
     -> impl std::future::Future<Output = Result<Page, String>> + Send;
+    fn delete(
+        &self,
+        owner_id: &UserId,
+        id: &PageId,
+    ) -> impl std::future::Future<Output = Result<(), String>> + Send;
     fn update_title_direct(
         &self,
         owner_id: &UserId,

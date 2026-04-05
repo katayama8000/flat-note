@@ -1,15 +1,26 @@
 {
+    "exclude": [
+        "src-tauri/target/**"
+    ],
     "fmt": {
         "exclude": [
             "**/*.svg",
             "**/*.html",
             "**/*.json",
+            "src-tauri/target/**",
             "src/routeTree.gen.ts"
         ]
     },
     "lint": {
         "exclude": [
+            "src-tauri/target/**",
             "src/routeTree.gen.ts"
+        ]
+    },
+    "check": {
+        "exclude": [
+            "src-tauri/target/**",
+            "src-tauri/target/release/build/**"
         ]
     }
 }
