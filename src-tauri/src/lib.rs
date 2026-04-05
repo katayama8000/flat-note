@@ -2,8 +2,8 @@ use domain::aggregate::value_object::SortBy;
 use domain::Page;
 use infrastructure::LibSqlPageRepository;
 use usecase::{
-    CountPagesUseCase, CreatePageUseCase, GetPageUseCase, GetPagesUseCase, SearchPagesUseCase,
-    SuggestPageTitlesUseCase, UpdatePageUseCase, UpdateTitleUseCase,
+    CountPagesUseCase, CreatePageUseCase, DeletePageUseCase, GetPageUseCase, GetPagesUseCase,
+    SearchPagesUseCase, SuggestPageTitlesUseCase, UpdatePageUseCase, UpdateTitleUseCase,
 };
 use uuid::Uuid;
 
@@ -83,6 +83,13 @@ async fn create_page(title: String) -> Result<Page, String> {
 }
 
 #[tauri::command]
+async fn delete_page(id: String) -> Result<(), String> {
+    let repository = LibSqlPageRepository::with_auth_token(db_url(), db_auth_token());
+    let use_case = DeletePageUseCase::new(repository);
+    use_case.execute(CURRENT_USER_ID, &id).await
+}
+
+#[tauri::command]
 async fn get_page_count() -> Result<u64, String> {
     let repository = LibSqlPageRepository::with_auth_token(db_url(), db_auth_token());
     let use_case = CountPagesUseCase::new(repository);
@@ -119,7 +126,8 @@ pub fn run() {
             update_page_direct,
             update_title,
             update_title_direct,
-            create_page
+            create_page,
+            delete_page
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

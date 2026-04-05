@@ -15,6 +15,8 @@ export const PageDetailPage = ({ pageId }: Props) => {
     tableToolbarPosition,
     titleInput,
     creating,
+    deleting,
+    isDeleteModalOpen,
     savedAt,
     setTitleInput,
     handleTitleKeyDown,
@@ -22,6 +24,9 @@ export const PageDetailPage = ({ pageId }: Props) => {
     handleDeleteColumn,
     handleSave,
     handleBack,
+    handleDelete,
+    handleCancelDelete,
+    handleConfirmDelete,
   } = usePageDetailLogic({ pageId });
 
   return (
@@ -32,6 +37,8 @@ export const PageDetailPage = ({ pageId }: Props) => {
       tableToolbarPosition={tableToolbarPosition}
       titleInput={titleInput}
       creating={creating}
+      deleting={deleting}
+      isDeleteModalOpen={isDeleteModalOpen}
       savedAt={savedAt}
       characterCount={editor?.storage.characterCount.characters() ?? 0}
       onTitleChange={setTitleInput}
@@ -40,6 +47,9 @@ export const PageDetailPage = ({ pageId }: Props) => {
       onAddColumn={handleAddColumn}
       onDeleteColumn={handleDeleteColumn}
       onSave={handleSave}
+      onDelete={handleDelete}
+      onCancelDelete={handleCancelDelete}
+      onConfirmDelete={handleConfirmDelete}
       editor={editor}
     />
   );
