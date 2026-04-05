@@ -455,19 +455,48 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     };
   }, [editor, handleSave]);
 
-  // Save on window close
+  // Keep a ref to the current handleSave to avoid re-registering listeners
+  const handleSaveRef = useRef(handleSave);
   useEffect(() => {
-    const win = getCurrentWindow();
-    let unlisten: (() => void) | undefined;
-    win.onCloseRequested(async (event) => {
-      event.preventDefault();
-      await handleSave();
-      await win.destroy();
-    }).then((fn) => {
-      unlisten = fn;
-    });
-    return () => unlisten?.();
+    handleSaveRef.current = handleSave;
   }, [handleSave]);
+
+  // Save on window close (register once)
+  useEffect(() => {
+    let unlistenFn: (() => void) | null = null;
+
+    // Register the close handler
+    getCurrentWindow().onCloseRequested((event) => {
+      event.preventDefault();
+
+      // Create a timeout for save (1 second max to avoid hanging)
+      const savePromise = handleSaveRef.current().catch((err) => {
+        console.warn("Could not save on close:", err);
+        // Continue anyway, as auto-save should have already saved
+      });
+
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+
+      // Race between save and timeout
+      Promise.race([savePromise, timeoutPromise]).then(() => {
+        getCurrentWindow().destroy().catch((err) => {
+          console.error("Error destroying window:", err);
+        });
+      });
+    }).then((unlisten) => {
+      unlistenFn = unlisten;
+    }).catch((err) => {
+      console.error("Error registering close handler:", err);
+    });
+
+    return () => {
+      if (unlistenFn) {
+        unlistenFn();
+      }
+    };
+  }, []);
 
   // Navigate back with save
   const handleBack = useCallback(async () => {
@@ -521,17 +550,17 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     }
   }, [deleting, isCreateMode, navigate, page]);
 
-  // Global save shortcut (Ctrl/Cmd + S)
+  // Global save shortcut (Ctrl/Cmd + S) - register once using ref
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
-        handleSave();
+        handleSaveRef.current();
       }
     };
     globalThis.addEventListener("keydown", onKeyDown);
     return () => globalThis.removeEventListener("keydown", onKeyDown);
-  }, [handleSave]);
+  }, []);
 
   return {
     page,
