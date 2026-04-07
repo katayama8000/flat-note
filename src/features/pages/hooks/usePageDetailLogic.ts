@@ -193,6 +193,7 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     TableToolbarPosition | null
   >(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveInFlightRef = useRef<Promise<void> | null>(null);
   const lastTitleEnterAt = useRef(0);
   const hasSaved = useRef(false);
   const editorRef = useRef<TiptapEditor | null>(null);
@@ -362,30 +363,28 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     [editor],
   );
 
-  // Save page content and title
-  const handleSave = useCallback(async () => {
+  const saveCreateMode = useCallback(async () => {
     if (!editor) return;
 
-    if (isCreateMode) {
-      const title = titleInput.trim();
-      if (!title || creating) return;
+    const title = titleInput.trim();
+    if (!title || creating) return;
 
-      setCreating(true);
-      try {
-        const created = await createPage(title);
-        // Get Markdown content and save it (not JSON)
-        const markdown = editor.getMarkdown();
-        await updatePage(created.id, markdown);
-        setSavedAt(new Date());
-        setPage(created);
-        navigate({ to: "/pages/$pageId", params: { pageId: created.id } });
-      } finally {
-        setCreating(false);
-      }
-      return;
+    setCreating(true);
+    try {
+      const created = await createPage(title);
+      // Get Markdown content and save it (not JSON)
+      const markdown = editor.getMarkdown();
+      await updatePage(created.id, markdown);
+      setSavedAt(new Date());
+      setPage(created);
+      navigate({ to: "/pages/$pageId", params: { pageId: created.id } });
+    } finally {
+      setCreating(false);
     }
+  }, [editor, titleInput, creating, navigate]);
 
-    if (!page) return;
+  const saveExistingPage = useCallback(async () => {
+    if (!editor || !page) return;
 
     const trimmedTitle = titleInput.trim();
     // Get Markdown content
@@ -409,7 +408,32 @@ export const usePageDetailLogic = ({ pageId }: Props) => {
     }
 
     setSavedAt(new Date());
-  }, [editor, page, isCreateMode, titleInput, creating, navigate]);
+  }, [editor, page, titleInput]);
+
+  // Save page content and title
+  const handleSave = useCallback(() => {
+    if (!editor) {
+      return Promise.resolve();
+    }
+
+    if (saveInFlightRef.current) {
+      return saveInFlightRef.current;
+    }
+
+    const savePromise = (async () => {
+      if (isCreateMode) {
+        await saveCreateMode();
+        return;
+      }
+
+      await saveExistingPage();
+    })().finally(() => {
+      saveInFlightRef.current = null;
+    });
+
+    saveInFlightRef.current = savePromise;
+    return savePromise;
+  }, [editor, isCreateMode, saveCreateMode, saveExistingPage]);
 
   // Load page data and content when pageId changes
   useEffect(() => {
