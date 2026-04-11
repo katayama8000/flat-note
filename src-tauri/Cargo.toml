@@ -1,5 +1,5 @@
 [package]
-name = "flat-note"
+name = "tatami"
 version = "0.1.0"
 description = "A simple note-taking app built with Tauri and Rust."
 authors = ["katayama8000 <tattu.0310@gmail.com>"]

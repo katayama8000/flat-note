@@ -1,45 +1,7 @@
-# flat-note
+# 畳 (tatami)
 
-A desktop note-taking app built with Tauri, React, and TypeScript.
-
-## Overview
-
-**flat-note** is a lightweight, fast, and feature-rich note-taking application
-designed for users who want a simple yet powerful way to organize their thoughts
-and ideas. Built with modern web technologies and Tauri, it provides a native
-desktop experience with cloud synchronization capabilities.
-
-## Features
-
-- **Rich Text Editing** - Create notes with markdown support, tables, YouTube
-  embeds, code blocks with syntax highlighting, and task lists
-- **Full-Text Search** - Quickly find notes across your entire library
-- **Auto-Save** - Your work is automatically saved every 1.5 seconds, no need to
-  manually save
-- **Task Management** - Create nested task lists to stay organized
-- **Code Highlights** - Support for syntax highlighting in multiple programming
-  languages
-- **Tables** - Create and edit tables with resizable columns
-- **Cross-Platform** - Native desktop app for macOS (with support for
-  Windows/Linux)
-- **Cloud Sync** - Optional cloud storage via Turso database for syncing across
-  devices
-- **Keyboard Shortcuts** - Cmd/Ctrl+S to save, fast navigation between notes
-
-## How It Works
-
-flat-note uses a modern architecture:
-
-- **Frontend**: React with TanStack Router for routing, Tiptap for rich text
-  editing via Markdown
-- **Backend**: Rust with Tauri for native desktop integration
-- **Database**: SQLite for local development, Turso (SQLite-compatible) for
-  cloud storage
-- **File Structure**: Feature-first organization with clear separation between
-  domain logic and UI
-
-All your notes are stored locally or in the cloud, and the app automatically
-saves changes as you type.
+A desktop note-taking app built with Tauri, React, and TypeScript. Former name
+is "flat-note".
 
 ## Recommended IDE Setup
 
